@@ -1,0 +1,20 @@
+{
+  "name": "introduca-api-nodejs",
+  "version": "1.0.0",
+  "description": "Introdução API com Node JS - Express, Mysql",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dudagasparotto/introduca-api-nodejs.git"
+  },
+  "keywords": ["NodeJS", "Express", "MySQL", "API"],
+  "author": "maria",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dudagasparotto/introduca-api-nodejs/issues"
+  },
+  "homepage": "https://github.com/dudagasparotto/introduca-api-nodejs#readme"
+}
