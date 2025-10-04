@@ -1,0 +1,114 @@
+
+Dicionário de dados
+
+
+
+Quadro 1 – Usuário
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Usuário	id_usuario	INT		X		Autoincremento
+Tipo de Usuário	id_tipo_usuario	TINYINT			X	
+Nome	nome_usuario	VARCHAR	80			
+E-mail	email_usuario	VARCHAR	60			
+Senha	senha_usuario	VARCHAR	128			Será criptografada
+Telefone	telefone_usuario	VARCHAR	15			
+Fonte: Autoria própria
+
+Quadro 2 - Manutenção
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Manutenção	id_manutencao	INT		X		Autoincremento
+Ônibus	id_onibus	SMALLINT			X	
+Descrição	descrição_manutencao	VARCHAR	255			
+Data Inicial	data_inicio_manutencao	DATE				
+Data Final	data_fim_manutencao	DATE				NULL
+Status	status_manutencao	TINYINT				0 – Ruim, 1 – Consertando, 2 – Consertado 
+Fonte: Autoria própria
+
+
+Quadro 3 - Ônibus
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Ônibus	id_onibus	SMALLINT		X		Autoincremento
+Placa	placa_onibus	VARCHAR	8			
+Modelo	modelo_onibus	VARCHAR	12			
+Tipo de combustível	tipo_combustivel_onibus	TINYINT				0 – Diesel, 1 – Biodiesel, 3 - Elétrico
+Ano	ano_onibus	SMALLINT				
+Fonte: Autoria própria
+
+Quadro 4 - Avaliação
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade da avaliação	id_avaliacao	INT		x		Autoincremento
+Identidade do usuário	id_usuario	INT			x	
+Identidade do motorista	id_motorista	INT			x	
+Nota da avaliação	nota_avaliação	TINYINT				De 0 a 5 estrelas
+Comentário da avaliação 	comentário_avaliacao	VARCHAR	255			NULL
+Data da avaliação 	data_avaliacao	DATETIME				
+Fonte: Autoria própria
+
+
+
+
+Quadro 5 – Motorista
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade do motorista	id_motorista	INT		x	x	
+CPF do motorista	cpf_motorista	BIGINT				
+CNH do motorista	cnh_motorista	BIGINT				
+Foto do motorista	foto_motorista	VARCHAR	255			
+Fonte: Autoria própria
+
+
+Quadro 6- Localização
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade da localização	id_localizacao	INT		x		Autoincremento
+Identidade da rota do ônibus	id_rota_onibus	MEDIUMINT			x	
+Latitude da localização do ônibus	latitude_localizacao	DECIMAL	11,8			Exemplo maps: 36.049615, 103.827938 – notação máscara: 41°24'12.2"N
+Longitude da localização do ônibus	longitude_localizacao	DECIMAL	11,8			Exemplo maps: 36.049615, 103.827938 – notação máscara: 41°24'12.2"N
+Data e hora da localização do ônibus	data_hora_localizacao	DATATIME				
+Fonte: Autoria própria
+
+
+Quadro 7- Tabela rota_onibus
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade da rota do ônibus 	Id_rotaOnibus	MEDIUMINT		x		Autoincremento
+Identidade do motorista	Id_motorista	INT			x	Dados do motorista, carteira de motorista, etc
+Identidade do ônibus 	Id_onibus	SMALLINT			x	Placa, modelo, etc
+Identidade das rotas do ônibus	Id_rota	MEDIUMINT			x	Rota que o ônibus ira realizar na cidade
+Data da ocorrência 	data_ocorrencia_rota_onibus	DATE				
+Fonte: Autoria própria
+
+Quadro 8 - Tabela rotas
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade das rotas do ônibus	Id_rota	MEDIUMINT		X		Autoincremento
+Identidade dos pontos	Id_ponto	SMALLINT			X	Localização dos pontos na cidade
+Identidade das linhas 	Id_linha	SMALLINT			x	Linhas disponíveis que os ônibus vão percorrer
+Segmento dos pontos de acordo com a rota	Ordem_sequencia_rotas	TINYINT				
+Fonte: Autoria própria
+
+Quadro 9 - Tabela pontos
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade dos pontos 	Id_pontos	SMALLINT		x		Autoincremento
+Nome dos pontos	Nome_pontos	VARCHAR	100			Localização do ponto, ex: rua que está o ponto
+Latitude do ponto	Latitude_pontos	DECIMAL	11,8			Vertical
+Longitude do ponto 	Longitude_pontos	DECIMAL	11,8			horizontal
+Fonte: Autoria própria
+
+
+Quadro 10 – tipo_usuarios
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Tipo de usuário	id_tipo_usuario	TINYINT		X		Autoincremento
+Nome do tipo de usuário	nome_tipo_usuario	VARCHAR	20			0 – Administrador, 1 – Motorista, 2 - Usuário
+Fonte: Autoria própria
+
+Quadro 11- linhas
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade da linha	id_linha	SMALLINT		X		Autoincremento
+Nome das linhas	nome_linhas	VARCHAR	30			
+Descrição das linhas	descrição_linha	VARCHAR	255			NULL
+
+Fonte: Autoria própria
+
+Quadro 12 - horarios
+Campo Lógico	Campo Físico	Tipo de dados	Tamanho do campo	PK	FK	Observações
+Identidade do horário	id_horario	MEDIUMINT		X		Autoincremento
+Identidade do ponto	id_ponto	SMALLINT			X	
+Horário das passagens	passagem_horarios	TIME				
+Fonte: Autoria própria
+                      
