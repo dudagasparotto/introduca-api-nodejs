@@ -1,0 +1,11 @@
+Divisão das tabelas do Banco de Dados
+
+Duda - 2
+Kauani - 1
+Pedro - 
+João -
+
+1 - tipo de usuários, usuários,  motorista
+2 - manutenção, avaliação, horários
+3 - rotaOnibus, rotas, linhas
+4 - ônibus, pontos, localização 
