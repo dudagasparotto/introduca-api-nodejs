@@ -1,0 +1,89 @@
+const db = require('../dataBase/connection');
+
+module.exports = {
+    async listarAvaliação ( request, response ) {
+        try {
+            return response.status(200).json(
+                {
+                    sucesso: true,
+                    mensagem: 'Listagem da avaliação obtida com sucesso',
+                    dados: nmull
+                }
+            );
+            } 
+            catch ( error ) {
+                return response.status(500).json(
+                    {
+                        sucesso: false,
+                        mensagem: 'Erro ao obter lista de avaliação: ${error.message}',
+                        dados: null
+                    }
+                );
+        }
+
+    },
+   
+    async cadastrarAvaliacao ( request, response ) {
+        try {
+            return response.status(200).json(
+                {
+                    sucesso: true,
+                    mensagem: 'Cadrasto da avaliação realizado com sucesso',
+                    dados: nmull
+                }
+            );
+            } 
+            catch ( error ) {
+                return response.status(500).json(
+                    {
+                        sucesso: false,
+                        mensagem: 'Erro ao cadastrar a avaliação: ${error.message}',
+                        dados: null
+                    }
+                );
+        }
+
+    },
+    async editarAvaliacao ( request, response ) {
+        try {
+            return response.status(200).json(
+                {
+                    sucesso: true,
+                    mensagem: 'Atualização da manutenção realizado com sucesso',
+                    dados: nmull
+                }
+            );
+            } 
+            catch ( error ) {
+                return response.status(500).json(
+                    {
+                        sucesso: false,
+                        mensagem: 'Erro ao editar a manutenção: ${error.message}',
+                        dados: null
+                    }
+                );
+        }
+
+    },
+       async apagarAvaliacao ( request, response ) {
+        try {
+            return response.status(200).json(
+                {
+                    sucesso: true,
+                    mensagem: 'Exclusão da manutenção realizado com sucesso',
+                    dados: nmull
+                }
+            );
+            } 
+            catch ( error ) {
+                return response.status(500).json(
+                    {
+                        sucesso: false,
+                        mensagem: 'Erro ao excluir a manutenção: ${error.message}',
+                        dados: null
+                    }
+                );
+            }
+
+        },
+}
