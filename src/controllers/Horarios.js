@@ -1,81 +1,88 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarUsuario(req, res) {
+    async listarAvaliacao(require, response) {
 
         try {
-            return res.status(200).json(
+            return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'listar usuário',
+                    mensagem: 'lista de avaliação obtida com sucesso',
                     dados: null
                 }
             ); 
-        }catch (error) {
-                return res.status(500).json(
- {
-                    sucesso: false, 
-                    mensagem: 'Erro ao listar usuário',
-                    dados: null 
- }); 
-                }           
+        }
+        catch (error) {
+                return response.status(500).json(
+                    {
+                        sucesso: false, 
+                        mensagem: 'Erro ao listar a avaliação; ${error.message}',
+                        dados: null 
+                    }
+                ); 
+            }           
     },
 
-            async cadastrarUsuario(req, res) {
+        async cadastrarAvaliacao(require, response) {
 
-        try {
-            return res.status(200).json(
+            try {
+                return response.status(200).json(
+                    {   
+                    sucesso: true, 
+                    mensagem: 'Cadastro avaliação realizado com sucesso',
+                    dados: null
+                    }
+                ); 
+            }
+        catch (error) {
+                return response.status(500).json(
+                    {
+                        sucesso: false, 
+                        mensagem: 'Erro ao cadastrar avaliação: ${error.message}',
+                        dados: null 
+                    }
+                ); 
+            } 
+        }, 
+            async atualizarAvaliacao(require, response) {
+
+            try {
+            return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Cadastrar usuário',
+                    mensagem: 'atualização da avaliação realizado com sucesso',
                     dados: null
                 }
             ); 
-        }catch (error) {
-                return res.status(500).json(
+        }
+        catch (error) {
+                return response.status(500).json(
  {
                     sucesso: false, 
-                    mensagem: 'Erro ao cadastrar usuário',
-                    dados: null 
- }); 
-               } 
-            }, 
-            async atualizarUsuario(req, res) {
-
-        try {
-            return res.status(200).json(
-                {
-                    sucesso: true, 
-                    mensagem: 'atualizar usuário',
-                    dados: null
-                }
-            ); 
-        }catch (error) {
-                return res.status(500).json(
- {
-                    sucesso: false, 
-                    mensagem: 'Erro ao atualizar usuário',
+                    mensagem: 'Erro ao atualizar a avaliação: ${error.message}',
                     dados: null 
  }); 
                } 
             },   
-            async apagarUsuario(req, res) {
+            async apagarAvaliacao(require, response) {
 
-        try {
-            return res.status(200).json(
+            try {
+            return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'apagar Tipos de usuário',
+                    mensagem: 'Avaliação apagada com sucesso',
                     dados: null
                 }
             ); 
-        }catch (error) {
-                return res.status(500).json(
- {
+        }
+        catch (error) {
+                return response.status(500).json(
+                    {
                     sucesso: false, 
-                    mensagem: 'Erro ao apagar usuário',
+                    mensagem: 'Erro ao apagar a avaliação: ${error.message}',
                     dados: null 
- }); 
+                    }
+                ); 
                }
             }                           
     };
