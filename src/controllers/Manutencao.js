@@ -1,13 +1,13 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarAvaliacao(require, response) {
+    async listarManutencao(require, response) {
 
         try {
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'lista de avaliação obtida com sucesso',
+                    mensagem: 'lista de Manutencao obtida com sucesso',
                     dados: null
                 }
             ); 
@@ -16,20 +16,20 @@ module.exports = {
                 return response.status(500).json(
                     {
                         sucesso: false, 
-                        mensagem: 'Erro ao listar a avaliação; ${error.message}',
+                        mensagem: 'Erro ao listar a Manutencao: ${error.message}',
                         dados: null 
                     }
                 ); 
             }           
     },
 
-        async cadastrarAvaliacao(require, response) {
+        async cadastrarManutencao(require, response) {
 
             try {
                 return response.status(200).json(
                     {   
                     sucesso: true, 
-                    mensagem: 'Cadastro avaliação realizado com sucesso',
+                    mensagem: 'Cadastro da Manutencao realizado com sucesso',
                     dados: null
                     }
                 ); 
@@ -38,19 +38,19 @@ module.exports = {
                 return response.status(500).json(
                     {
                         sucesso: false, 
-                        mensagem: 'Erro ao cadastrar avaliação: ${error.message}',
+                        mensagem: 'Erro ao cadastrar Manutencao: ${error.message}',
                         dados: null 
                     }
                 ); 
             } 
         }, 
-            async atualizarAvaliacao(require, response) {
+            async atualizarManutencao(require, response) {
 
             try {
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'atualização da avaliação realizado com sucesso',
+                    mensagem: 'atualização da Manutencao realizado com sucesso',
                     dados: null
                 }
             ); 
@@ -59,18 +59,18 @@ module.exports = {
                 return response.status(500).json(
  {
                     sucesso: false, 
-                    mensagem: 'Erro ao atualizar a avaliação: ${error.message}',
+                    mensagem: 'Erro ao atualizar a Manutencao: ${error.message}',
                     dados: null 
  }); 
                } 
             },   
-            async apagarAvaliacao(require, response) {
+            async apagarManutencao(require, response) {
 
             try {
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Avaliação apagada com sucesso',
+                    mensagem: 'Manutencao apagada com sucesso',
                     dados: null
                 }
             ); 
@@ -79,7 +79,7 @@ module.exports = {
                 return response.status(500).json(
                     {
                     sucesso: false, 
-                    mensagem: 'Erro ao apagar a avaliação: ${error.message}',
+                    mensagem: 'Erro ao apagar a Manutencao: ${error.message}',
                     dados: null 
                     }
                 ); 

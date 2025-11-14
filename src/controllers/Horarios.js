@@ -1,13 +1,13 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarAvaliacao(require, response) {
+    async listarHorarios(require, response) {
 
         try {
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'lista de avaliação obtida com sucesso',
+                    mensagem: 'lista de Horarios obtida com sucesso',
                     dados: null
                 }
             ); 
@@ -16,20 +16,20 @@ module.exports = {
                 return response.status(500).json(
                     {
                         sucesso: false, 
-                        mensagem: 'Erro ao listar a avaliação; ${error.message}',
+                        mensagem: 'Erro ao listar os Horarios ${error.message}',
                         dados: null 
                     }
                 ); 
             }           
     },
 
-        async cadastrarAvaliacao(require, response) {
+        async cadastrarHorarios(require, response) {
 
             try {
                 return response.status(200).json(
                     {   
                     sucesso: true, 
-                    mensagem: 'Cadastro avaliação realizado com sucesso',
+                    mensagem: 'Cadastro de Horarios realizado com sucesso',
                     dados: null
                     }
                 ); 
@@ -38,19 +38,19 @@ module.exports = {
                 return response.status(500).json(
                     {
                         sucesso: false, 
-                        mensagem: 'Erro ao cadastrar avaliação: ${error.message}',
+                        mensagem: 'Erro ao cadastrar Horarios: ${error.message}',
                         dados: null 
                     }
                 ); 
             } 
         }, 
-            async atualizarAvaliacao(require, response) {
+            async atualizarHorarios(require, response) {
 
             try {
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'atualização da avaliação realizado com sucesso',
+                    mensagem: 'atualização dos Horarios realizado com sucesso',
                     dados: null
                 }
             ); 
@@ -59,18 +59,18 @@ module.exports = {
                 return response.status(500).json(
  {
                     sucesso: false, 
-                    mensagem: 'Erro ao atualizar a avaliação: ${error.message}',
+                    mensagem: 'Erro ao atualizar Horario: ${error.message}',
                     dados: null 
  }); 
                } 
             },   
-            async apagarAvaliacao(require, response) {
+            async apagarHorarios(require, response) {
 
             try {
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Avaliação apagada com sucesso',
+                    mensagem: 'Horario apagado com sucesso',
                     dados: null
                 }
             ); 
@@ -79,7 +79,7 @@ module.exports = {
                 return response.status(500).json(
                     {
                     sucesso: false, 
-                    mensagem: 'Erro ao apagar a avaliação: ${error.message}',
+                    mensagem: 'Erro ao apagar o Horario: ${error.message}',
                     dados: null 
                     }
                 ); 
