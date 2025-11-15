@@ -1,5 +1,6 @@
 const express = require('express'); 
 const router = express.Router();
+
 const motoristaController = require('../controllers/motorista');
 const usuariosController = require('../controllers/usuarios');
 const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
@@ -18,3 +19,6 @@ router.get('/tiposdeusuarios', tiposdeUsuariosController.listarTiposdeUsuario);
 router.post('/tiposdeusuarios', tiposdeUsuariosController.cadastrarTiposdeUsuario);
 router.patch('/tiposdeusuarios', tiposdeUsuariosController.atualizarTiposdeUsuario);
 router.delete('/tiposdeusuarios', tiposdeUsuariosController.apagarTiposdeUsuario);
+
+
+module.exports = router;
