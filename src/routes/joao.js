@@ -1,23 +1,23 @@
 const express = require('express');
 const router = express.Router();
 
-const OnibusController = require('../controllers/usuarios');
-const PontosController = require('../controllers/produtos');
-const LocalizacaoController = require('../controllers/produtos');
+const OnibusController = require('../controllers/onibus');
+const PontosController = require('../controllers/pontos');
+const LocalizacaoController = require('../controllers/localizacao');
 
-router.get('/onibus', OnibusController.listarOnibus);
-router.post('/onibus', OnibusController.cadastrarOnibus);
-router.patch('/onibus', OnibusController.editarOnibus);
-router.delete('/onibus', OnibusController.apagarOnibus);
+router.get('/onibus', OnibusController.listaronibus);
+router.post('/onibus', OnibusController.cadastraronibus);
+router.patch('/onibus', OnibusController.editaronibus);
+router.delete('/onibus', OnibusController.apagaronibus);
 
-router.get('/pontos', PontosController.listarPontos);
-router.post('/pontos', PontosController.cadastrarPontos);
-router.patch('/pontos', PontosController.editarPontos);
-router.delete('/pontos', PontosController.apagarPontos);
+router.get('/pontos', PontosController.listarpontos);
+router.post('/pontos', PontosController.cadastrarpontos);
+router.patch('/pontos', PontosController.editarpontos);
+router.delete('/pontos', PontosController.apagarpontos);
 
-router.get('/localizacao', LocalizacaoController.listarLocalizacao);
-router.post('/localizacao', LocalizacaoController.cadastrarLocalizacao);
-router.patch('/localizacao', LocalizacaoController.editarLocalizacao);
-router.delete('/localizacao', LocalizacaoController.apagarLocalizacao);
+router.get('/localizacao', LocalizacaoController.listarlocalizacao);
+router.post('/localizacao', LocalizacaoController.cadastrarlocalizacao);
+router.patch('/localizacao', LocalizacaoController.editarlocalizacao);
+router.delete('/localizacao', LocalizacaoController.apagarlocalizacao);
 
 module.exports = router;
