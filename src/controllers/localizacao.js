@@ -3,6 +3,15 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarlocalizacao (request, response) {
         try{
+
+            const sql = `
+                SELECT 
+                    id_localizacao, id_rota_onibus, latitude_localizacao, longitude_localizacao, data_hora_localizacao
+                FROM localizacao;
+            `;
+
+            const [localizacao] = await db.query(sql); 
+
             return response.status(200).json(
                 {
                 sucesso: true,

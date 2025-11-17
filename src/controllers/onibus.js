@@ -3,6 +3,15 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listaronibus (request, response) {
         try{
+            
+            const sql = `
+                SELECT 
+                    id_onibus, placa_onibus, modelo_onibus, tipo_combustivel_onibus, ano_onibus
+                FROM onibus;
+            `;
+
+            const [onibus] = await db.query(sql);
+
             return response.status(200).json(
                 {
                 sucesso: true,
