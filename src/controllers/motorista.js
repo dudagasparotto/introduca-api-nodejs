@@ -4,11 +4,17 @@ module.exports = {
     async listarMotorista(req, res) {
 
         try {
+
+            const sql = `SELECT id_motorista, cpf_motorista, cnh_motorista, foto_motorista
+                         FROM motorista`;
+
+            const [rows] =  await db.query(sql);
             return res.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'listar motorista',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
         }catch (error) {
@@ -16,7 +22,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao listar motorista',
-                    dados: null 
+                    dados: error.message
  }); 
                 }           
     },
@@ -27,7 +33,7 @@ module.exports = {
             return res.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Cadastrar motorista',
+                    mensagem: 'Cadastrar motorista', 
                     dados: null
                 }
             ); 
@@ -36,7 +42,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao cadastrar motorista',
-                    dados: null 
+                    dados: null
  }); 
                } 
             }, 
@@ -55,7 +61,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao atualizar motorista',
-                    dados: null 
+                    dados: null
  }); 
                } 
             },   
@@ -66,7 +72,8 @@ module.exports = {
                 {
                     sucesso: true, 
                     mensagem: 'apagar motorista',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
         }catch (error) {
@@ -74,7 +81,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao apagar motorista',
-                    dados: null 
+                    dados: rows 
  }); 
                }
             }                           

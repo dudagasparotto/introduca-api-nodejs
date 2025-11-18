@@ -1,14 +1,22 @@
+const e = require('cors');
 const db = require('../dataBase/connection');
 
 module.exports = {
     async listarTiposdeUsuario(req, res) {
 
         try {
+
+            const sql = `SELECT id_tipo_usuario, nome_tipo_usuario 
+            FROM tipo_usuarios`; 
+
+            const [rows] =  await db.query(sql);
+            
             return res.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'listar Tipos de usuário',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
         }catch (error) {
@@ -16,7 +24,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao listar tipos de usuário',
-                    dados: null 
+                    dados: error.message
  }); 
                 }           
     },

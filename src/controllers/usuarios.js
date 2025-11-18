@@ -4,19 +4,27 @@ module.exports = {
     async listarUsuario(req, res) {
 
         try {
+            const sql = `SELECT id_usuario, id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario
+            FROM usuario;`;
+
+            const [rows] =  await db.query(sql);
+
+
             return res.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'listar usuário',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
+
         }catch (error) {
                 return res.status(500).json(
  {
                     sucesso: false, 
                     mensagem: 'Erro ao listar usuário',
-                    dados: null 
+                    dados: error.message
  }); 
                 }           
     },
@@ -31,12 +39,13 @@ module.exports = {
                     dados: null
                 }
             ); 
+
         }catch (error) {
                 return res.status(500).json(
  {
                     sucesso: false, 
                     mensagem: 'Erro ao cadastrar usuário',
-                    dados: null 
+                    dados: null
  }); 
                } 
             }, 
@@ -55,7 +64,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao atualizar usuário',
-                    dados: null 
+                    dados: null
  }); 
                } 
             },   
@@ -74,7 +83,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao apagar usuário',
-                    dados: null 
+                    dados: null
  }); 
                }
             }                           
