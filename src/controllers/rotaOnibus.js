@@ -3,11 +3,20 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarrotaOnibus (request, response) {
         try{
+
+            const sql = `
+                SELECT id_rotaOnibus, id_motorista, id_onibus, id_rota, data_ocorrencia_rota_onibus
+                FROM rota_onibus;
+            `;
+
+            const [rotaOnibus] = await db.query(sql);
+
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Lista da rota do ônibus obtida com sucesso',
-                dados: null
+                itens: rotaOnibus.length,
+                dados: rotaOnibus
                 }
             );
         } catch (error) {

@@ -3,11 +3,20 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarlinhas (request, response) {
         try{
+
+            const sql = `
+                SELECT id_linha, nome_linhas, descricao_linha
+                FROM linhas;
+            `;
+
+            const [linhas] = await db.query(sql);
+
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Lista da linha de ônibus obtida com sucesso',
-                dados: null
+                itens: linhas.length,
+                dados: linhas
                 }
             );
         } catch (error) {
