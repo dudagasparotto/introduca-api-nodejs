@@ -3,6 +3,15 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarpontos (request, response) {
         try{
+
+            const sql = `
+                SELECT 
+                    id_pontos, nome_pontos, latitude_pontos, longitude_pontos
+                FROM pontos;
+            `;
+
+            const [pontos] = await db.query(sql);
+
             return response.status(200).json(
                 {
                 sucesso: true,
