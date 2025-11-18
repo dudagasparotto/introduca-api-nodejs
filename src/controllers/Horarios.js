@@ -4,11 +4,19 @@ module.exports = {
     async listarHorarios(require, response) {
 
         try {
+
+            const sql= `SELECT 
+                            id_horario, id_ponto, passagem_horarios
+                        FROM horarios; `;
+            
+            const [rows] = await db.query(sql);
+
             return response.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'lista de Horarios obtida com sucesso',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
         }
