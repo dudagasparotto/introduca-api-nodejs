@@ -4,7 +4,6 @@ module.exports = {
     async listarAvaliacao(require, response) {
 
         try {
-
         const sql = `SELECT 
                         id_avaliacao, id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao
                     FROM avaliacao;` ;
@@ -34,11 +33,30 @@ module.exports = {
         async cadastrarAvaliacao(require, response) {
 
             try {
+
+            const { idUsuario, idMotorista,  notaAvaliacao, comentarioAvaliacao, dataAvaliacao } = require.body; //captura dos dados enviados pelo cliente
+
+            const sql = `INSERT INTO avaliacao 
+                        (id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) 
+                        VALUES (?, ?, ?, ?, ?);` ;    
+
+                
+                const values = [idUsuario, idMotorista, notaAvaliacao, comentarioAvaliacao, dataAvaliacao]; //definição dos dados a serem inseridos em uma array
+                
+                const [ result ] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
+
+                const dados = {  //identificação do ID do registro inserido
+                    id: result.insertId,
+                    notaAvaliacao,
+                    comentarioAvaliacao,
+                    dataAvaliacao
+                }
+                
                 return response.status(200).json(
                     {   
                     sucesso: true, 
                     mensagem: 'Cadastro avaliação realizado com sucesso',
-                    dados: null
+                    dados: dados
                     }
                 ); 
             }
@@ -47,7 +65,7 @@ module.exports = {
                     {
                         sucesso: false, 
                         mensagem: 'Erro ao cadastrar avaliação: ${error.message}',
-                        dados: null 
+                        dados: error.message
                     }
                 ); 
             } 
