@@ -4,11 +4,19 @@ module.exports = {
     async listarManutencao(require, response) {
 
         try {
+
+            const sql = `SELECT 
+                            id_manutencao, id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao
+                        FROM manutencao;`;
+
+            const [rows] = await db.query(sql);
+
             return response.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'lista de Manutencao obtida com sucesso',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
         }

@@ -5,12 +5,18 @@ module.exports = {
 
         try {
 
-            
+        const sql = `SELECT 
+                        id_avaliacao, id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao
+                    FROM avaliacao;` ;
+
+            const [rows] = await db.query(sql);
+
             return response.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'lista de avaliação obtida com sucesso',
-                    dados: null
+                    itens: rows.length,
+                    dados: rows
                 }
             ); 
         }
