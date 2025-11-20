@@ -34,11 +34,31 @@ module.exports = {
         async cadastrarManutencao(require, response) {
 
             try {
+
+                const { id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao } = require.body; //captura dos dados enviados pelo cliente
+
+                const sql = `INSERT INTO manutencao (id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao)
+                            VALUES
+                            (?,?,?,?,?);`;
+
+                const values = [ id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao ]; //definição dos dados a serem inseridos em uma array
+
+                const [result] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
+
+                const dados = {
+                    id: result.insertId,
+                    id_onibus,
+                    descricao_manutencao,
+                    data_inicio_manutencao,
+                    data_fim_manutencao,
+                    status_manutencao
+                }
+
                 return response.status(200).json(
                     {   
                     sucesso: true, 
                     mensagem: 'Cadastro da Manutencao realizado com sucesso',
-                    dados: null
+                    dados: dados
                     }
                 ); 
             }
@@ -47,7 +67,7 @@ module.exports = {
                     {
                         sucesso: false, 
                         mensagem: 'Erro ao cadastrar Manutencao: ${error.message}',
-                        dados: null 
+                        dados: error.message 
                     }
                 ); 
             } 

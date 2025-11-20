@@ -34,11 +34,29 @@ module.exports = {
         async cadastrarHorarios(require, response) {
 
             try {
+
+            const {id_ponto, passagem_horarios} = require.body; //captura dos dados enviados pelo cliente
+            
+            //instrução SQL para inserção dos dados
+            const sql = `INSERT INTO   
+            horarios (id_ponto, passagem_horarios) 
+            VALUES
+            (?,?); `;
+
+            const values = [id_ponto, passagem_horarios]; //definição dos dados a serem inseridos em uma array
+
+            const [result] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
+
+            const dados = {
+                id_ponto,
+                passagem_horarios
+            }
+
                 return response.status(200).json(
                     {   
                     sucesso: true, 
                     mensagem: 'Cadastro de Horarios realizado com sucesso',
-                    dados: null
+                    dados: dados
                     }
                 ); 
             }
@@ -47,7 +65,7 @@ module.exports = {
                     {
                         sucesso: false, 
                         mensagem: 'Erro ao cadastrar Horarios: ${error.message}',
-                        dados: null 
+                        dados: error.message 
                     }
                 ); 
             } 
