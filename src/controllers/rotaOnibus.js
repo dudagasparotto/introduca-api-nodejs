@@ -31,11 +31,33 @@ module.exports = {
     },
     async cadastrarrotaOnibus (request, response) {
         try{
+            
+            const { id_do_Motora, id_do_Onibus, id_da_Rota, data_ocorrencia } = request.body;
+
+            const sql = `
+                INSERT INTO rota_onibus 
+                    (id_motorista, id_onibus, id_rota, data_ocorrencia_rota_onibus) 
+                VALUES
+                    (?, ?, ?, ?);
+            `;
+
+            const values = [id_do_Motora, id_do_Onibus, id_da_Rota, data_ocorrencia];
+
+            const [result] = await db.query(sql, values);
+
+            const dados = {
+                id: result.insertId,
+                id_do_Motora,
+                id_do_Onibus,
+                id_da_Rota,
+                data_ocorrencia
+            };
+
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Cadastro de rota de ônibus realizado com sucesso',
-                dados: null
+                dados: dados
                 }
             );
         } catch (error) {
@@ -43,7 +65,7 @@ module.exports = {
                 {
                 sucesso: false,
                 mensagem: `Erro ao cadastrar rota de ônibus: ${error.message}`,
-                dados: null
+                dados: error.message
                 }
             );
         }
