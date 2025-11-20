@@ -34,28 +34,28 @@ module.exports = {
 
             try {
 
-            const { idUsuario, idMotorista,  notaAvaliacao, comentarioAvaliacao, dataAvaliacao } = require.body; //captura dos dados enviados pelo cliente
+            const { id_usuario, id_motorista,  nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body; //captura dos dados enviados pelo cliente
 
             const sql = `INSERT INTO avaliacao 
                         (id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) 
                         VALUES (?, ?, ?, ?, ?);` ;    
 
                 
-                const values = [idUsuario, idMotorista, notaAvaliacao, comentarioAvaliacao, dataAvaliacao]; //definição dos dados a serem inseridos em uma array
+                const values = [id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao]; //definição dos dados a serem inseridos em uma array
                 
                 const [ result ] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
 
                 const dados = {  //identificação do ID do registro inserido
                     id: result.insertId,
-                    notaAvaliacao,
-                    comentarioAvaliacao,
-                    dataAvaliacao
+                    nota_avaliacao,
+                    comentario_avaliacao,
+                    data_avaliacao
                 }
                 
                 return response.status(200).json(
                     {   
                     sucesso: true, 
-                    mensagem: 'Cadastro avaliação realizado com sucesso',
+                    mensagem: 'Cadastro da avaliação realizado com sucesso',
                     dados: dados
                     }
                 ); 
