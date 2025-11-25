@@ -72,28 +72,51 @@ module.exports = {
                 ); 
             } 
         }, 
-            async atualizarManutencao(require, response) {
-
+            async atualizarManutencao(require, response) { //UPDATE
             try {
-            return response.status(200).json(
-                {
-                    sucesso: true, 
-                    mensagem: 'atualização da Manutencao realizado com sucesso',
-                    dados: null
-                }
-            ); 
-        }
-        catch (error) {
-                return response.status(500).json(
- {
+
+            const { id_manutencao, id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao } = require.body; //captura dos dados enviados pelo cliente
+            const {id} = require.params;
+            const sql = `UPDATE manutencao SET 
+                        id_onibus = ?, descricao_manutencao = ?, data_inicio_manutencao = ?, data_fim_manutencao = ?, status_manutencao = ?
+                        WHERE id_manutencao = ?;`;
+            const values = [ id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao, id ]; //definição dos dados a serem atualizados em uma array
+            const [result] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
                     sucesso: false, 
-                    mensagem: 'Erro ao atualizar a Manutencao: ${error.message}',
+                        mensagem: `Manutencao ${id} não encontrada`,
                     dados: null 
- }); 
+                    });
+                }
+                const dados = {
+                    id_manutencao,
+                    id_onibus,
+                    descricao_manutencao,
+                    data_inicio_manutencao,
+                    data_fim_manutencao,
+                    status_manutencao
+                };
+
+                return response.status(200).json(
+                    {
+                    sucesso: true, 
+                    mensagem: `Manutencao ${id} atualizada com sucesso`,
+                    dados: dados
+                    }); 
+                }
+             
+                catch (error) {
+                return response.status(500).json(
+                    {
+                    sucesso: false, 
+                    mensagem: `Erro ao atualizar a Manutencao: ${error.message}`,
+                    dados: error.mensagem 
+                    }); 
                } 
             },   
-            async apagarManutencao(require, response) {
-
+            async apagarManutencao(require, response) { //DELETE
             try {
             return response.status(200).json(
                 {
