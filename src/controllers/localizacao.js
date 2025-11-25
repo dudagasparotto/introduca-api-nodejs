@@ -16,7 +16,7 @@ module.exports = {
                 {
                 sucesso: true,
                 mensagem: 'Lista de localizacao obtida com sucesso',
-                dados: null
+                dados: localizacao
                 }
             );
         } catch (error) {
@@ -24,18 +24,40 @@ module.exports = {
                 {
                 sucesso: false,
                 mensagem: `Erro ao listar a localizacao: ${error.message}`,
-                dados: null
+                dados: error.message
                 }
             );
         }
     },
     async cadastrarlocalizacao (request, response) {
         try{
+
+            const {id_da_rota_onibus, latitude_da_localizacao, longitude_da_localizacao, data_da_hora_localizacao} = request.body;
+
+            const sql = `
+                INSERT INTO localizacao 
+                    (id_rota_onibus, latitude_localizacao, longitude_localizacao, data_hora_localizacao) 
+                VALUES
+                    (?, ?, ?, ?);
+            `;
+
+            const values = [id_da_rota_onibus, latitude_da_localizacao, longitude_da_localizacao, data_da_hora_localizacao];
+
+            const [result] = await db.query(sql, values);
+
+            const dados = {
+                id: result.insertId,
+                id_da_rota_onibus, 
+                latitude_da_localizacao, 
+                longitude_da_localizacao, 
+                data_da_hora_localizacao
+            }
+
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Cadastro de localizacao realizado com sucesso',
-                dados: null
+                dados: dados
                 }
             );
         } catch (error) {
@@ -43,7 +65,7 @@ module.exports = {
                 {
                 sucesso: false,
                 mensagem: `Erro ao cadastrar localizacao: ${error.message}`,
-                dados: null
+                dados: error.message
                 }
             );
         }

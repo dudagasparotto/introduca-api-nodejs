@@ -31,11 +31,31 @@ module.exports = {
     },
     async cadastrarlinhas (request, response) {
         try{
+
+            const { nome_da_linha, descricao_da_linha } = request.body;
+
+            const sql = `
+                INSERT INTO linhas 
+                    (nome_linhas, descricao_linha) 
+                VALUES
+                    (?, ?);
+            `;
+
+            const values = [nome_da_linha, descricao_da_linha];
+
+            const [result] = await db.query(sql, values);
+
+            const dados = {
+                id: result.insertId,
+                nome_da_linha,
+                descricao_da_linha
+            };
+
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Cadastro da linha de ônibus realizado com sucesso',
-                dados: null
+                dados: dados
                 }
             );
         } catch (error) {
@@ -43,7 +63,7 @@ module.exports = {
                 {
                 sucesso: false,
                 mensagem: `Erro ao cadastrar linha de ônibus: ${error.message}`,
-                dados: null
+                dados: error.message
                 }
             );
         }
