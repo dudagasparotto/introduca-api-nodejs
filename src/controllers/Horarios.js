@@ -70,37 +70,57 @@ module.exports = {
                 ); 
             } 
         }, 
-            async atualizarHorarios(require, response) {
+            async atualizarHorarios(require, response) { //UPDATE
+                try {
 
-            try {
-            return response.status(200).json(
-                {
-                    sucesso: true, 
-                    mensagem: 'atualização dos Horarios realizado com sucesso',
-                    dados: null
+                const { id_ponto, passagem_horarios } = require.body; //captura dos dados enviados pelo cliente
+                const {id} = require.params;
+                const sql = `UPDATE horarios SET
+                            id_ponto = ?, passagem_horarios = ? 
+                            WHERE id_horario = ?; `;
+                const values = [ id_ponto, passagem_horarios, id ]; //definição dos dados a serem atualizados em uma array
+                const [result] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
+
+                if (result.affectedRows === 0) {
+                    return response.status(404).json({
+                        sucesso: false, 
+                        mensagem: `Horario com ID ${id} não encontrado.`,
+                        dados: null
+                    });
                 }
-            ); 
-        }
-        catch (error) {
+
+                const dados = {
+                    id_horario: id,
+                    id_ponto,
+                    passagem_horarios
+                };
+
+                return response.status(200).json(
+                    {
+                    sucesso: true, 
+                    mensagem: `Horarios ${id} atualizados com sucesso`,
+                    dados: dados
+                    }); 
+                }
+                catch (error) {
                 return response.status(500).json(
- {
+                    {
                     sucesso: false, 
-                    mensagem: 'Erro ao atualizar Horario: ${error.message}',
-                    dados: null 
- }); 
+                    mensagem: `Erro ao atualizar Horario: ${error.message}`,
+                    dados: error.message 
+                    }); 
                } 
             },   
-            async apagarHorarios(require, response) {
 
+            async apagarHorarios(require, response) { //DELETE
             try {
             return response.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'Horario apagado com sucesso',
                     dados: null
-                }
-            ); 
-        }
+                }); 
+            }
         catch (error) {
                 return response.status(500).json(
                     {
