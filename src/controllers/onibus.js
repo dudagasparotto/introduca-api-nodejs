@@ -72,21 +72,50 @@ module.exports = {
     },
     async editaronibus (request, response) {
         try{
-            return response.status(200).json(
-                {
+
+            const { placa_do_onibus, modelo_do_onibus, tipo_combustivel_do_onibus, ano_do_onibus } = request.body;
+
+            const { id } = request.params;
+
+            const sql = `
+                UPDATE onibus SET 
+                    placa_onibus = ?, modelo_onibus = ?, tipo_combustivel_onibus = ?, ano_onibus = ? 
+                WHERE   
+                    id_onibus = ?;
+            `;
+
+            const values = [ placa_do_onibus, modelo_do_onibus, tipo_combustivel_do_onibus, ano_do_onibus, id];
+
+            const [ result ] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Usuário ${id} nâo encontrado!`,
+                    dados: null
+                });
+            }
+
+            const dados = {
+                id_onibus: id,
+                placa_do_onibus,
+                modelo_do_onibus,
+                tipo_combustivel_do_onibus,
+                ano_do_onibus 
+            };
+
+            return response.status(200).json({
                 sucesso: true,
-                mensagem: 'Atualização de onibus realizado com sucesso',
-                dados: null
-                }
-            );
+                mensagem: `Usuário ${id} atualizado com sucesso!`,
+                dados
+            });
+
         } catch (error) {
-            return response.status(500).json(
-                {
+            return response.status(500).json({
                 sucesso: false,
-                mensagem: `Erro ao atualizar o onibus: ${error.message}`,
-                dados: null
-                }
-            );
+                mensagem: "Erro na requisição.",
+                dados: error.message
+            });
         }
     },
     async apagaronibus (request, response) {
