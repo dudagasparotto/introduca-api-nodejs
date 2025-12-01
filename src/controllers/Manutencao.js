@@ -118,10 +118,21 @@ module.exports = {
             },   
             async apagarManutencao(require, response) { //DELETE
             try {
+            const {id} = require.params;
+            const sql = `DELETE FROM manutencao WHERE id_manutencao = ?;`;
+            const values = [id];
+            const [result] = await db.query(sql, values);
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Manutencao ${id} não encontrada para exclusão`,
+                    dados: null
+                });
+            }
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Manutencao apagada com sucesso',
+                    mensagem: `Manutencao ${id} apagada com sucesso`,
                     dados: null
                 }
             ); 
@@ -130,8 +141,8 @@ module.exports = {
                 return response.status(500).json(
                     {
                     sucesso: false, 
-                    mensagem: 'Erro ao apagar a Manutencao: ${error.message}',
-                    dados: null 
+                    mensagem: `Erro ao apagar a Manutencao: ${error.message}`,
+                    dados: error.message
                     }
                 ); 
                }

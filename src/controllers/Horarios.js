@@ -114,10 +114,22 @@ module.exports = {
 
             async apagarHorarios(require, response) { //DELETE
             try {
+                const {id} = require.params;
+
+                const sql = `DELETE FROM horarios WHERE id_horario = ?; `;
+                const values = [id];
+                const [result] = await db.query(sql, values);
+                if (result.affectedRows === 0) {
+                    return response.status(404).json({
+                        sucesso: false,
+                        mensagem: `Horario com ID ${id} não encontrado.`,
+                        dados: null
+                    });
+                }
             return response.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Horario apagado com sucesso',
+                    mensagem: `Horario ${id} apagado com sucesso.`,
                     dados: null
                 }); 
             }
@@ -125,8 +137,8 @@ module.exports = {
                 return response.status(500).json(
                     {
                     sucesso: false, 
-                    mensagem: 'Erro ao apagar o Horario: ${error.message}',
-                    dados: null 
+                    mensagem: `Erro ao apagar o Horario: ${error.message}`,
+                    dados: error.message 
                     }
                 ); 
                }
