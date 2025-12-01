@@ -70,11 +70,40 @@ module.exports = {
     },
     async editarlinhas (request, response) {
         try{
+            const { nome_da_linha, descricao_da_linha } = request.body;
+            
+            const { id } = request.params;
+            
+            const sql = `
+                UPDATE linhas SET
+                    nome_linhas = ?, descricao_linha = ?
+                WHERE
+                    id_linha = ?;
+            `;
+
+            const values = [nome_da_linha, descricao_da_linha, id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Linha ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+            
+            const dados = {
+                id,
+                nome_da_linha,
+                descricao_da_linha
+            };
+
             return response.status(200).json(
                 {
                 sucesso: true,
-                mensagem: 'Atualização de linha de ônibus realizado com sucesso',
-                dados: null
+                mensagem: `Linha ${id} atualizada com sucesso!`,
+                dados
                 }
             );
         } catch (error) {
@@ -89,6 +118,22 @@ module.exports = {
     },
     async apagarlinhas (request, response) {
         try{
+            const {id} = request.params;
+            
+            const sql = `DELETE FROM linhas WHERE id_linha = ?`;
+            
+            const values = [id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Linha ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+
             return response.status(200).json(
                 {
                 sucesso: true,

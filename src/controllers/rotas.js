@@ -70,11 +70,40 @@ module.exports = {
     },
     async editarrotas (request, response) {
         try{
+            const { id_do_Ponto, id_da_Linha, ordem_sequencia } = request.body;
+            
+            const { id } = request.params;
+            
+            const sql = `
+                UPDATE rotas SET
+                    id_ponto = ?, id_linha = ?, ordem_sequencia_rotas = ?
+                WHERE
+                    id_rota = ?;
+            `;
+
+            const values = [ id_do_Ponto, id_da_Linha, ordem_sequencia, id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Linha ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+            
+            const dados = {
+                id, 
+                id_do_Ponto, 
+                id_da_Linha, 
+                ordem_sequencia
+            };
             return response.status(200).json(
                 {
                 sucesso: true,
-                mensagem: 'Atualização de rota realizado com sucesso',
-                dados: null
+                mensagem: `Atualização de rota ${id} realizado com sucesso`,
+                dados
                 }
             );
         } catch (error) {
@@ -89,6 +118,22 @@ module.exports = {
     },
     async apagarrotas (request, response) {
         try{
+            const {id} = request.params;
+            
+            const sql = `DELETE FROM rotas WHERE id_rota = ?`;
+            
+            const values = [id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Rota ${id} não encontrada!`,
+                    dados: null
+                });
+            }
+
             return response.status(200).json(
                 {
                 sucesso: true,

@@ -72,11 +72,41 @@ module.exports = {
     },
     async editarrotaOnibus (request, response) {
         try{
+            const { id_do_Motora, id_do_Onibus, id_da_Rota, data_ocorrencia } = request.body;
+            
+            const { id } = request.params;
+            
+            const sql = `
+                UPDATE rota_onibus SET
+                    id_motorista = ?, id_onibus = ?, id_rota = ?, data_ocorrencia_rota_onibus = ?
+                WHERE
+                    id_rotaOnibus = ?;
+            `;
+
+            const values = [id_do_Motora, id_do_Onibus, id_da_Rota, data_ocorrencia, id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Rota de ônibus ID ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+            
+            const dados = {
+                id,
+                id_do_Motora,
+                id_do_Onibus,
+                id_da_Rota,
+                data_ocorrencia
+            };
             return response.status(200).json(
                 {
                 sucesso: true,
-                mensagem: 'Atualização de rota de ônibus realizado com sucesso',
-                dados: null
+                mensagem: `Atualização de rota de ônibus ID ${id} realizado com sucesso`,
+                dados
                 }
             );
         } catch (error) {
@@ -91,6 +121,22 @@ module.exports = {
     },
     async apagarrotaOnibus (request, response) {
         try{
+            const {id} = request.params;
+            
+            const sql = `DELETE FROM rota_onibus WHERE id_rotaOnibus = ?`;
+            
+            const values = [id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Rota de ônibus ID ${id} não encontrada!`,
+                    dados: null
+                });
+            }
+
             return response.status(200).json(
                 {
                 sucesso: true,

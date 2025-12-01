@@ -71,21 +71,49 @@ module.exports = {
     },
     async editarpontos (request, response) {
         try{
-            return response.status(200).json(
-                {
+
+            const { nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos } = request.body;
+
+            const { id } = request.params;
+
+            const sql = `
+                UPDATE pontos SET 
+                    nome_pontos = ?, latitude_pontos = ?, longitude_pontos = ?
+                WHERE
+                    id_pontos = ?;
+            `;
+
+            const values = [ nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos, id];
+
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Pontos ${id} nâo encontrado!`,
+                    dados: null
+                });
+            }
+
+            const dados = {
+                id_pontos: id,
+                nome_dos_pontos,
+                latitude_dos_pontos,
+                longitude_dos_pontos 
+            };
+
+            return response.status(200).json({
                 sucesso: true,
-                mensagem: 'Atualização de pontos realizado com sucesso',
-                dados: null
-                }
-            );
+                mensagem: `Pontos ${id} atualizado com sucesso!`,
+                dados
+            });
+
         } catch (error) {
-            return response.status(500).json(
-                {
+            return response.status(500).json({
                 sucesso: false,
-                mensagem: `Erro ao atualizar os pontos: ${error.message}`,
-                dados: null
-                }
-            );
+                mensagem: "Erro na requisição.",
+                dados: error.message
+            });
         }
     },
     async apagarpontos (request, response) {
