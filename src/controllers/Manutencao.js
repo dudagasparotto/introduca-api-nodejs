@@ -7,7 +7,10 @@ module.exports = {
 
             const sql = `SELECT 
                             id_manutencao, id_onibus, descricao_manutencao, data_inicio_manutencao, data_fim_manutencao, status_manutencao
-                        FROM manutencao;`;
+                        FROM 
+                            manutencao
+                        ORDER BY
+                            data_inicio_manutencao, data_fim_manutencao;`;
 
             const [rows] = await db.query(sql);
 

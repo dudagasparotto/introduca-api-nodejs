@@ -7,7 +7,10 @@ module.exports = {
 
             const sql= `SELECT 
                             id_horario, id_ponto, passagem_horarios
-                        FROM horarios; `;
+                        FROM
+                            horarios
+                        ORDER BY 
+                            passagem_horarios ASC;`;  //COLOCA "PASSAGEM HORARIOS" EM ORDEM DO MENOR PARA O MAIOR
             
             const [rows] = await db.query(sql);
 
