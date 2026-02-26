@@ -27,6 +27,9 @@
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
+
+    "expres": "^0.0.5",
+
     "express": "^5.2.1",
     "mysql2": "^3.17.1"
   },

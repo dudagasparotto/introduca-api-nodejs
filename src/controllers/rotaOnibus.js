@@ -3,10 +3,16 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarrotaOnibus (request, response) {
         try{
+            const { nome } = request.query;
 
+            const rota_nome = nome ? `${nome}%` : `%`;
             const sql = `
-                SELECT id_rotaOnibus, id_motorista, id_onibus, id_rota, data_ocorrencia_rota_onibus
-                FROM rota_onibus;
+                SELECT 
+                    id_rotaOnibus, id_motorista, id_onibus, id_rota, data_ocorrencia_rota_onibus
+                FROM 
+                    rota_onibus
+                ORDER BY
+                    id_rotaOnibus;
             `;
 
             const [rotaOnibus] = await db.query(sql);
