@@ -1,6 +1,9 @@
-router.get('/usuarios', UsuariosController.listarUsuarios);
-router.post('/usuarios', UsuariosController.cadastrarUsuarios);
-router.patch('/usuarios/:id', UsuariosController.editarUsuarios);
-router.delete('/usuarios/:id', UsuariosController.apagarUsuarios);
-router.delete('/usuarios/:del/:id', UsuariosController.ocultarUsuarios);
-router.get('/login', UsuariosController.login); //query
+const express = require('express');
+const router = express.Router();
+
+const LoginController = require('../controllers/login');
+
+// login via query parameters (GET)
+router.get('/login', LoginController.login);
+
+module.exports = router;
