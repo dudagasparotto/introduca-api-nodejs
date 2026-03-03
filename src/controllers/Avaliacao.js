@@ -4,17 +4,25 @@ module.exports = {
 async listarAvaliacao(require, response) {  //READ
 
     try {
+    const {pesquisa} = require.query;
+    const nota_avaliacao = pesquisa ? `%${pesquisa}` : `%`; // pesquisa com parametro
+
     const sql = `SELECT 
                     id_avaliacao, id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao
-                FROM avaliacao;` ;
+                FROM 
+                    avaliacao
+                WHERE 
+                    nota_avaliacao like ?;` ;
 
-        const [rows] = await db.query(sql);
+        const values = [nota_avaliacao];
+        const [rows] = await db.query(sql,values);
+        const nItens = rows.length;
 
         return response.status(200).json(
             {
                 sucesso: true, 
                 mensagem: 'lista de avaliação obtida com sucesso',
-                itens: rows.length,
+                nItens,
                 dados: rows
             }
         ); 
