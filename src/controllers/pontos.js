@@ -3,20 +3,38 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarpontos (request, response) {
         try{
+            const { nome } = request.query;
 
+            const nome_pontos = nome ? `%${nome}%` : '%';
             const sql = `
                 SELECT 
                     id_pontos, nome_pontos, latitude_pontos, longitude_pontos
-                FROM pontos;
+                FROM
+                    pontos
+                WHERE
+                    nome_pontos LIKE ?
+                ORDER BY
+                    id_pontos ASC;
             `;
 
-            const [pontos] = await db.query(sql);
+            const values = [nome_pontos];
+
+            const [rows] = await db.query(sql, values);
+            const nItens = rows.length;
+
+            const dados = rows.map(nome_pontos => ({
+                id: nome_pontos.id_pontos,
+                nome: nome_pontos.nome_pontos,
+                latitude: nome_pontos.latitude_pontos,
+                longitude: nome_pontos.longitude_pontos
+            }));
 
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Lista dos pontos obtida com sucesso',
-                dados: pontos
+                nItens,
+                dados: rows
                 }
             );
         } catch (error) {
