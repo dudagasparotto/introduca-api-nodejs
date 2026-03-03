@@ -7,7 +7,7 @@ const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
 
 router.get('/motoristas', motoristaController.listarMotorista);
 router.post('/motoristas', motoristaController.cadastrarMotorista);
-router.patch('/motoristas', motoristaController.atualizarMotorista);
+router.patch('/motoristas/:id', motoristaController.atualizarMotorista);
 router.delete('/motoristas', motoristaController.apagarMotorista);
 
 router.get('/usuarios', usuariosController.listarUsuario);
