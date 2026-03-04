@@ -3,20 +3,37 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listaronibus (request, response) {
         try{
+            const { nome } = request.query;
 
+            const placa_onibus = nome ? `%${nome}%` : '%';
             const sql = `
                 SELECT 
                     id_onibus, placa_onibus, modelo_onibus, tipo_combustivel_onibus, ano_onibus
-                FROM onibus;
+                FROM 
+                    onibus
+                WHERE 
+                    placa_onibus LIKE ?
             `;
 
-            const [onibus] = await db.query(sql);
+            const values = [placa_onibus];
+
+            const [rows] = await db.query(sql, values);
+            const nItens = rows.length;
+
+            const dados = rows.map(placa_onibus => ({
+                id: placa_onibus.id_onibus,
+                placa: placa_onibus.placa_onibus,
+                modelo: placa_onibus.modelo_onibus,
+                tipo_combustivel: placa_onibus.tipo_combustivel_onibus,
+                ano: placa_onibus.ano_onibus
+            }));
 
             return response.status(200).json(
                 {
                 sucesso: true,
                 mensagem: 'Lista do onibus obtida com sucesso',
-                dados: onibus
+                nItens,
+                dados: rows
                 }
             );
         } catch (error) {

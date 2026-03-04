@@ -10,7 +10,7 @@ module.exports = {
                         FROM 
                             manutencao
                         ORDER BY
-                            data_inicio_manutencao, data_fim_manutencao;`;
+                            data_inicio_manutencao, data_fim_manutencao;`; //COLOCA EM ORDEM DO MENOR PARA O MAIOR
 
             const [rows] = await db.query(sql);
 

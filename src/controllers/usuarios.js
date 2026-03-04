@@ -112,9 +112,10 @@ module.exports = {
                 dados: null,
             }); }
 
-            const dados = rows.map(usuarios => ({
+            const dados = rows.map(usuarios => ({  //Devolver dados com nome dos campos tratadoss
                 id: usuarios.id_tipo_usuario,
-                nome: usuarios.nome_usuario
+                nome: usuarios.nome_usuario,
+                tipo: nome_tipo_usuario
             }));
 
             return response.status(200).json({

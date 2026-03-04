@@ -7,7 +7,10 @@ module.exports = {
             const sql = `
                 SELECT 
                     id_localizacao, id_rota_onibus, latitude_localizacao, longitude_localizacao, data_hora_localizacao
-                FROM localizacao;
+                FROM
+                    localizacao
+                ORDER BY
+                    id_localizacao ASC;
             `;
 
             const [localizacao] = await db.query(sql); 
