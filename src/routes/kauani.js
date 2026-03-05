@@ -18,8 +18,8 @@ router.get('/login', usuariosController.login);
 
 router.get('/tiposdeusuarios', tiposdeUsuariosController.listarTiposdeUsuario);
 router.post('/tiposdeusuarios', tiposdeUsuariosController.cadastrarTiposdeUsuario);
-router.patch('/tiposdeusuarios', tiposdeUsuariosController.atualizarTiposdeUsuario);
-router.delete('/tiposdeusuarios', tiposdeUsuariosController.apagarTiposdeUsuario);
+router.patch('/tiposdeusuarios/:id', tiposdeUsuariosController.atualizarTiposdeUsuario);
+router.delete('/tiposdeusuarios/:id', tiposdeUsuariosController.apagarTiposdeUsuario);
 
 
 module.exports = router;

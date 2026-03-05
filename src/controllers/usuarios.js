@@ -5,7 +5,7 @@ module.exports = {
 
         try {
             const sql = `SELECT id_usuario, id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario
-            FROM usuario;`;
+            FROM usuarios;`;
 
             const [rows] =  await db.query(sql);
 
@@ -32,16 +32,16 @@ module.exports = {
     async cadastrarUsuario(req, res) {
 
         try {
-            const {id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario} = res.body;
+            const {id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario} = req.body;
 
             //instrução sql 
-            const sql = `INSERT INTO usuario
-            (nome_usuario, email_usuario, senha_usuario, telefone_usuario)
+            const sql = `INSERT INTO usuarios
+            (id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario)
             VALUES 
-                (?, ?, ?, ?);` ; 
+                (?, ?, ?, ?, ?);` ; 
 
                 //Definição dos dados a serem inseridos em uma array
-                const values = [id_tipo_usuario, nome, email, senha, telefone];
+                const values = [id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario];
 
                 //Execulsão da instrução sql passando os parametros
                 const [result] = await db.query(sql, values);
@@ -50,10 +50,10 @@ module.exports = {
                 const dados = {
                     id: result.insertId,
                     id_tipo_usuario,
-                    nome, 
-                    email, 
-                    senha,
-                    telefone
+                    nome_usuario, 
+                    email_usuario, 
+                    senha_usuario,
+                    telefone_usuario
                 }; 
 
 
@@ -91,7 +91,7 @@ module.exports = {
             const {id} = req.params;
             
             //instrução sql
-            const sql = `UPDATE usuario
+            const sql = `UPDATE usuarios
             SET id_tipo_usuario = ?, nome_usuario = ?, email_usuario = ?, senha_usuario = ?, telefone_usuario = ?
             WHERE id_usuario = ?;` ;
 
@@ -149,7 +149,7 @@ module.exports = {
 
             //comando de exclusão
             const sql = `DELETE FROM
-            usuario WHERE
+            usuarios WHERE
             id_usuario = ?;` ;
 
             //array com os parametros da exclusão
@@ -183,9 +183,9 @@ module.exports = {
                }
             },  
 
-            async login(require, response) { 
+            async login(req, res) { 
             try {
-            const {email, senha} = require.query;
+            const {email, senha} = req.query;
             const sql = `SELECT 
                    id_tipo_usuario, nome_usuario
                 FROM 
@@ -199,7 +199,7 @@ module.exports = {
             const nItens = rows.length;
 
             if (nItens < 1){
-            return response.status(403).json(
+            return res.status(403).json(
             {
                 sucesso: false, 
                 mensagem: 'login e/ou senha inválido.',
@@ -213,14 +213,14 @@ module.exports = {
                 tipo: nome_tipo_usuario
             }));
 
-            return response.status(200).json({
+            return res.status(200).json({
                 sucesso: true, 
                 mensagem: 'login efetuado com sucesso.',
                 dados
             }); 
             }
             catch (error) {
-                return response.status(500).json(
+                return res.status(500).json(
                 {
                     sucesso: false, 
                     mensagem: `Erro na requisição. ${error.message}`,

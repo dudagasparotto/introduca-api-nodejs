@@ -32,11 +32,24 @@ module.exports = {
             async cadastrarTiposdeUsuario(req, res) {
 
         try {
+            const {nome_tipo_usuario} = req.body;   
+
+            const sql  = `INSERT INTO tipo_usuarios (nome_tipo_usuario)
+             VALUES (?);`;
+
+             const values = [nome_tipo_usuario];   
+             const [result] = await db.query (sql, values);
+
+                const dados = {
+                    id: result.insertId,
+                    nome_tipo_usuario
+                }
+
             return res.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'Cadastrar Tipos de usuário',
-                    dados: null
+                    mensagem: 'Tipo de usuário cadastrado com sucesso',
+                    dados: dados
                 }
             ); 
         }catch (error) {
@@ -44,18 +57,42 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao cadastrar tipos de usuário',
-                    dados: null 
+                    dados: error.message 
  }); 
                } 
             }, 
             async atualizarTiposdeUsuario(req, res) {
 
         try {
+            const {id} = req.params;
+            const {nome_tipo_usuario} = req.body;
+
+                const sql = `UPDATE tipo_usuarios
+                SET nome_tipo_usuario = ?
+                WHERE id_tipo_usuario = ?;` ;
+
+                const values = [nome_tipo_usuario, id];
+
+                const [result] = await db.query(sql, values);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                mensagem: 'Tipo de usuário não encontrado',
+                dados: null
+            }); 
+        }
+        const dados = {
+            id: id,
+            nome_tipo_usuario
+        }; 
+
+        
             return res.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'atualizar Tipos de usuário',
-                    dados: null
+                    mensagem: 'Tipos de usuário atualizado com sucesso',
+                    dados
                 }
             ); 
         }catch (error) {
@@ -63,17 +100,32 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao atualizar tipos de usuário',
-                    dados: null 
+                    dados: error.message
  }); 
                } 
             },   
             async apagarTiposdeUsuario(req, res) {
 
         try {
+            const {id} = req.params;
+
+            const sql = `DELETE FROM tipo_usuarios
+            WHERE id_tipo_usuario = ?;` ;
+
+            const values = [id];
+            const [result] = await db.query(sql, values);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                mensagem: 'Tipo de usuário não encontrado',
+                dados: null
+            }); 
+        }
             return res.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'apagar Tipos de usuário',
+                    mensagem: 'Tipo de usuário apagado com sucesso',
                     dados: null
                 }
             ); 
@@ -82,7 +134,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao apagar tipos de usuário',
-                    dados: null 
+                    dados: error.message
  }); 
                }
             }                           
