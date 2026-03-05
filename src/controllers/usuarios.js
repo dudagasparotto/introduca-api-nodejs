@@ -21,60 +21,155 @@ module.exports = {
 
         }catch (error) {
                 return res.status(500).json(
- {
+        {
                     sucesso: false, 
                     mensagem: 'Erro ao listar usuário',
                     dados: error.message
- }); 
+         }); 
                 }           
-    },
+             },
 
-            async cadastrarUsuario(req, res) {
+    async cadastrarUsuario(req, res) {
 
         try {
-            return res.status(200).json(
+            const {id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario} = res.body;
+
+            //instrução sql 
+            const sql = `INSERT INTO usuario
+            (nome_usuario, email_usuario, senha_usuario, telefone_usuario)
+            VALUES 
+                (?, ?, ?, ?);` ; 
+
+                //Definição dos dados a serem inseridos em uma array
+                const values = [id_tipo_usuario, nome, email, senha, telefone];
+
+                //Execulsão da instrução sql passando os parametros
+                const [result] = await db.query(sql, values);
+
+                //Definição do ID do registro inserido
+                const dados = {
+                    id: result.insertId,
+                    id_tipo_usuario,
+                    nome, 
+                    email, 
+                    senha,
+                    telefone
+                }; 
+
+
+                    
+
+
+        return res.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'Cadastrar usuário',
-                    dados: null
+                    dados: dados
                 }
             ); 
 
         }catch (error) {
                 return res.status(500).json(
- {
+                {
+    
                     sucesso: false, 
                     mensagem: 'Erro ao cadastrar usuário',
-                    dados: null
- }); 
+                    dados: error.message
+        }); 
                } 
             }, 
-            async atualizarUsuario(req, res) {
+
+
+    async atualizarUsuario(req, res) {
 
         try {
-            return res.status(200).json(
-                {
-                    sucesso: true, 
-                    mensagem: 'atualizar usuário',
+
+            // parametros recebidos pelo corpo da requisição
+            const {id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario} = req.body;
+           
+            // parametros recebidos pelo URL via params =, ex: /usuario/1
+            const {id} = req.params;
+            
+            //instrução sql
+            const sql = `UPDATE usuario
+            SET id_tipo_usuario = ?, nome_usuario = ?, email_usuario = ?, senha_usuario = ?, telefone_usuario = ?
+            WHERE id_usuario = ?;` ;
+
+            //parametros do array com dados que serão atualizados
+            const values = [id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario, id];
+
+            //Execulsão e obtenção de confirmação da atualização realizada
+            const [result] = await db.query(sql, values);
+
+            
+        if (result.affectedRows === 0) {
+            return res.status(404).json({  
+                    sucesso: false, 
+                    mensagem: `Usuario ID ${id} não encontrado!`,
                     dados: null
                 }
             ); 
-        }catch (error) {
+        }
+
+        const dados = {
+            id,
+            id_tipo_usuario,
+            nome_usuario,
+            email_usuario,
+            senha_usuario,
+            telefone_usuario
+        }; 
+
+        return res.status(200).json(
+                {
+                    sucesso: true,
+                    mensagem: `Usuario ID ${id} atualizado com sucesso!`,
+                    dados
+
+                }
+            );
+        }
+        catch (error) {
                 return res.status(500).json(
- {
+                {
                     sucesso: false, 
                     mensagem: 'Erro ao atualizar usuário',
-                    dados: null
- }); 
+                    dados: error.message
+                }); 
                } 
             },   
-            async apagarUsuario(req, res) {
+
+
+    async apagarUsuario(req, res) {
 
         try {
+
+              //parametro passando via url na chamada da api pelo front-end 
+            const { id } = req.params;
+
+            //comando de exclusão
+            const sql = `DELETE FROM
+            usuario WHERE
+            id_usuario = ?;` ;
+
+            //array com os parametros da exclusão
+            const values = [id];
+
+            // execulta instrução no banco de dados
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    mensagem: `Usuario ID ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+
             return res.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'apagar Tipos de usuário',
+                    mensagem: 'Usuario apagado com sucesso',
                     dados: null
                 }
             ); 
@@ -83,7 +178,7 @@ module.exports = {
                     {
                     sucesso: false, 
                     mensagem: 'Erro ao apagar usuário',
-                    dados: null
+                    dados: error.message
                     }); 
                }
             },  

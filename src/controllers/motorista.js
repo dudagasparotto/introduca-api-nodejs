@@ -32,6 +32,8 @@ module.exports = {
 
         try {
             const { cpf_motorista, cnh_motorista, foto_motorista } = req.body;
+
+            //instrução sql
             const sql  = `INSERT INTO motorista (cpf_motorista, cnh_motorista, foto_motorista)
              VALUES (?,?,?);`; 
 
@@ -118,15 +120,43 @@ module.exports = {
  }); 
                } 
             },   
+
+
             async apagarMotorista(req, res) {
 
-        try {
+        try { 
+
+            //parametro passando via url na chamada da api pelo front-end 
+
+            const { id } = req.params; 
+            
+            //comando de exclusão
+
+            const sql = `DELETE FROM 
+            motorista WHERE
+               id_motorista = ? `; 
+
+            //array com os parametros da exclusão 
+
+            const values = [id]; 
+
+            // execulta instrução no banco de dados 
+
+            const [result] = await db.query (sql, values); 
+
+            if (result.affectedRows === 0){
+                return res.status (404).json({
+                    sucesso: false, 
+                    mensagem: `Usuário ${id} não encontrado!`, 
+                    dados: null
+                }); 
+            }
+
             return res.status(200).json(
                 {
                     sucesso: true, 
-                    mensagem: 'apagar motorista',
-                    itens: rows.length,
-                    dados: rows
+                    mensagem: 'motorista apagado com sucesso',
+                    dados: null
                 }
             ); 
         }catch (error) {
@@ -134,7 +164,7 @@ module.exports = {
  {
                     sucesso: false, 
                     mensagem: 'Erro ao apagar motorista',
-                    dados: rows 
+                    dados: error.message
  }); 
                }
             }                           
