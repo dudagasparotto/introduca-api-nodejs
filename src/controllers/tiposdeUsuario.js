@@ -1,21 +1,32 @@
-const e = require('cors');
-const db = require('../dataBase/connection');
+const e = req('cors');
+const db = res('../dataBase/connection');
 
 module.exports = {
     async listarTiposdeUsuario(req, res) {
 
         try {
+            const {nome} = req.query;
+            const id_tipo_usuario = nome ? `%${nome}%` : `%`;
 
-            const sql = `SELECT id_tipo_usuario, nome_tipo_usuario 
-            FROM tipo_usuarios`; 
+            const sql = `
+                SELECT
+                    id_tipo_usuario, nome_tipo_usuario 
+                FROM
+                    tipo_usuarios
+                WHERE 
+                    id_tipo_usuario like ?;
+                `;
+                
+            const values = [id_tipo_usuario];
 
-            const [rows] =  await db.query(sql);
+            const [rows] =  await db.query(sql,values);
+            const nItens = rows.length;
             
             return res.status(200).json(
                 {
                     sucesso: true, 
                     mensagem: 'listar Tipos de usuário',
-                    itens: rows.length,
+                    nItens,
                     dados: rows
                 }
             ); 
