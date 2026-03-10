@@ -2,35 +2,31 @@ const db = require('../dataBase/connection');
 
 module.exports = {
     async listarUsuario(req, res) {
-
         try {
             const sql = `SELECT id_usuario, id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario
             FROM usuarios;`;
 
             const [rows] =  await db.query(sql);
 
-
-            return res.status(200).json(
-                {
+            return res.status(200).json({
                     sucesso: true, 
                     mensagem: 'listar usuário',
                     itens: rows.length,
                     dados: rows
-                }
-            ); 
-
-        }catch (error) {
-                return res.status(500).json(
-        {
+                }); 
+        }
+            catch (error) {
+                return res.status(500).json({
                     sucesso: false, 
                     mensagem: 'Erro ao listar usuário',
                     dados: error.message
-         }); 
-                }           
-             },
+                }); 
+            }           
+    },
+
+
 
     async cadastrarUsuario(req, res) {
-
         try {
             const {id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario} = req.body;
 
@@ -56,34 +52,28 @@ module.exports = {
                     telefone_usuario
                 }; 
 
-
-                    
-
-
-        return res.status(200).json(
-                {
+            return res.status(200).json({
                     sucesso: true, 
                     mensagem: 'Cadastrar usuário',
                     dados: dados
-                }
-            ); 
+                }); 
 
-        }catch (error) {
-                return res.status(500).json(
-                {
-    
+        }
+            catch (error) {
+                return res.status(500).json({
                     sucesso: false, 
                     mensagem: 'Erro ao cadastrar usuário',
                     dados: error.message
-        }); 
-               } 
-            }, 
+                }); 
+            } 
+    }, 
+
+
 
 
     async atualizarUsuario(req, res) {
 
         try {
-
             // parametros recebidos pelo corpo da requisição
             const {id_tipo_usuario, nome_usuario, email_usuario, senha_usuario, telefone_usuario} = req.body;
            
@@ -102,48 +92,41 @@ module.exports = {
             const [result] = await db.query(sql, values);
 
             
-        if (result.affectedRows === 0) {
-            return res.status(404).json({  
+            if (result.affectedRows === 0) {
+                return res.status(404).json({  
                     sucesso: false, 
                     mensagem: `Usuario ID ${id} não encontrado!`,
                     dados: null
-                }
-            ); 
-        }
+                }); 
+            }
 
-        const dados = {
+            const dados = {
             id,
             id_tipo_usuario,
             nome_usuario,
             email_usuario,
             senha_usuario,
             telefone_usuario
-        }; 
+            }; 
 
-        return res.status(200).json(
-                {
+            return res.status(200).json({
                     sucesso: true,
                     mensagem: `Usuario ID ${id} atualizado com sucesso!`,
                     dados
-
-                }
-            );
+            });
         }
-        catch (error) {
-                return res.status(500).json(
-                {
+            catch (error) {
+                return res.status(500).json({
                     sucesso: false, 
                     mensagem: 'Erro ao atualizar usuário',
                     dados: error.message
                 }); 
-               } 
-            },   
+            } 
+    },   
 
 
     async apagarUsuario(req, res) {
-
         try {
-
               //parametro passando via url na chamada da api pelo front-end 
             const { id } = req.params;
 
@@ -173,15 +156,16 @@ module.exports = {
                     dados: null
                 }
             ); 
-        }catch (error) {
+        }
+            catch (error) {
                 return res.status(500).json(
                     {
                     sucesso: false, 
                     mensagem: 'Erro ao apagar usuário',
                     dados: error.message
                     }); 
-               }
-            },  
+            }
+    },  
 
             async login(req, res) { 
             try {
