@@ -8,7 +8,7 @@ select * from onibus;
 select * from pontos;
 select * from rota_onibus;
 select * from rotas;
-select * from tipo_usuario;
+select * from tipo_usuario; /* so dois tipos adm e mototrista*/
 select * from usuarios;
 
 SELECT COUNT(*) AS id_motorista 

@@ -1,5 +1,5 @@
-const e = req('cors');
-const db = res('../dataBase/connection');
+const e = require('cors');
+const db = require('../dataBase/connection');
 
 module.exports = {
     async listarTiposdeUsuario(req, res) {
