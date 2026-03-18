@@ -42,14 +42,14 @@ async listarAvaliacao(require, response) {  //READ
 
         try {
 
-        const { id_usuario, id_motorista,  nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body; //captura dos dados enviados pelo cliente
+        const {id_motorista,  nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body; //captura dos dados enviados pelo cliente
 
         const sql = `INSERT INTO avaliacao 
-                    (id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) 
-                    VALUES (?, ?, ?, ?, ?);` ;    
+                    (id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) 
+                    VALUES ( ?, ?, ?, ?);` ;    
 
             
-            const values = [id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao]; //definição dos dados a serem inseridos em uma array
+            const values = [id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao]; //definição dos dados a serem inseridos em uma array
             
             const [ result ] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
 
@@ -81,14 +81,14 @@ async listarAvaliacao(require, response) {  //READ
         async atualizarAvaliacao(require, response) {  //UPDATE
         try {
             //parâmetros recebidos pelo corpo da requisição
-            const { id_avaliacao, id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body;
+            const { id_avaliacao, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body;
             
             //parâmetro recebido pela URL da requisição
             const {id} = require.params;
 
             //instruções SQL para atualização do registro
             const sql =    `UPDATE avaliacao
-                            SET id_usuario = ?,
+                            SET
                                 id_motorista = ?,
                                 nota_avaliacao = ?,
                                 comentario_avaliacao = ?,
@@ -96,7 +96,7 @@ async listarAvaliacao(require, response) {  //READ
                             WHERE id_avaliacao = ?;` ;
          
             //definição dos dados a serem atualizados em uma array
-            const values = [ id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao, id_avaliacao ];
+            const values = [ id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao, id_avaliacao ];
 
             //execução e confirmação da instrução SQL passando os parâmetros
             const [result] = await db.query(sql, values); 
@@ -110,7 +110,6 @@ async listarAvaliacao(require, response) {  //READ
             }
             const dados = {
                 id: id_avaliacao,
-                id_usuario,
                 id_motorista,
                 nota_avaliacao,
                 comentario_avaliacao,
