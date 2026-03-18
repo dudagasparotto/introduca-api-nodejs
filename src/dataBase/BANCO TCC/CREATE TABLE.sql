@@ -14,6 +14,7 @@ CREATE TABLE usuarios (
 
 CREATE TABLE motorista (
     id_motorista INT PRIMARY KEY,
+    nome_motorista VARCHAR (100), 
     cpf_motorista BIGINT NOT NULL,
     cnh_motorista BIGINT NOT NULL,
     foto_motorista VARCHAR(255)
@@ -43,8 +44,7 @@ CREATE TABLE manutencao (
 
 CREATE TABLE linhas (
     id_linha SMALLINT PRIMARY KEY AUTO_INCREMENT,
-    nome_linhas VARCHAR(30) NOT NULL,
-    descricao_linha VARCHAR(255)
+    nome_linhas VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE pontos (

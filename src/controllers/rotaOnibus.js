@@ -5,17 +5,19 @@ module.exports = {
         try{
             const { nome } = request.query;
 
-            const rota_nome = nome ? `${nome}%` : `%`;
+            const id_rotaOnibus = nome ? `${nome}%` : `%`;
             const sql = `
                 SELECT 
                     id_rotaOnibus, id_motorista, id_onibus, id_rota, data_ocorrencia_rota_onibus
                 FROM 
                     rota_onibus
+                WHERE
+                    id_rotaOnibus LIKE ?
                 ORDER BY
                     id_rotaOnibus;
             `;
 
-            const [rotaOnibus] = await db.query(sql);
+            const [rotaOnibus] = await db.query(sql, [id_rotaOnibus]);
 
             return response.status(200).json(
                 {
@@ -36,7 +38,7 @@ module.exports = {
         }
     },
     async cadastrarrotaOnibus (request, response) {
-        try{
+        try{''
             
             const { id_do_Motora, id_do_Onibus, id_da_Rota, data_ocorrencia } = request.body;
 

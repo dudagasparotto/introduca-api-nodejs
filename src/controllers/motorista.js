@@ -9,7 +9,7 @@ module.exports = {
             const id_motorista = nome ? `%${nome}%` : `%`;
             const sql = `
                 SELECT 
-                    id_motorista, cpf_motorista, cnh_motorista, foto_motorista
+                    id_motorista,nome_motorista, cpf_motorista, cnh_motorista, foto_motorista
                 FROM 
                     motorista
                 ORDER BY
@@ -39,14 +39,14 @@ module.exports = {
 
     async cadastrarMotorista(request, response) {
         try {
-            const { cpf_motorista, cnh_motorista, foto_motorista } = request.body;
+            const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
 
             //instrução sql
-            const sql  = `INSERT INTO motorista (cpf_motorista, cnh_motorista, foto_motorista)
-             VALUES (?,?,?);`; 
+            const sql  = `INSERT INTO motorista (nome_motorista, cpf_motorista, cnh_motorista, foto_motorista)
+             VALUES (?,?,?,?);`; 
 
             //Definição dos dados a serem inseridos em uma array
-            const values = [cpf_motorista, cnh_motorista, foto_motorista];
+            const values = [nome_motorista, cpf_motorista, cnh_motorista, foto_motorista];
 
             //Execulsão da instrução sql passando os parametros 
             const [result] = await db.query (sql, values);
@@ -55,6 +55,7 @@ module.exports = {
             // Definição do ID  do registro inserido
             const dados = {
                 id: result.insertId,
+                nome_motorista,
                 cpf_motorista,
                 cnh_motorista,
                 foto_motorista
@@ -78,7 +79,7 @@ module.exports = {
     async atualizarMotorista(request, response) {
         try {
             // Parametros recebidos pelo corpo da requisição 
-            const { cpf_motorista, cnh_motorista, foto_motorista } = request.body;
+            const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
 
             //parametro recebido pela URL da requisição
             const {id} = request.params;
@@ -88,13 +89,13 @@ module.exports = {
                 UPDATE 
                     motorista 
                 SET 
-                    cpf_motorista = ?, cnh_motorista = ?, foto_motorista = ? 
+                   nome_motorista=?, cpf_motorista = ?, cnh_motorista = ?, foto_motorista = ? 
                 WHERE 
                     id_motorista = ?;
             `;
 
             // Preparo do array com dados a serem atualizados
-            const values = [cpf_motorista, cnh_motorista, foto_motorista, id];
+            const values = [nome_motorista, cpf_motorista, cnh_motorista, foto_motorista, id];
 
             //Execulsão da instrução sql passando os parametros
             const  [result] = await db.query(sql, values);
@@ -109,6 +110,7 @@ module.exports = {
 
             const dados = {
             id,
+            nome_motorista,
             cpf_motorista,
             cnh_motorista,
             foto_motorista
