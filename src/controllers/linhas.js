@@ -5,7 +5,11 @@ module.exports = {
         try{
 
             const sql = `
+<<<<<<< HEAD
                 SELECT id_linha, nome_linhas
+=======
+                SELECT id_linha, descricao_linha
+>>>>>>> 37c439d5728274354240c7c9fae66a4dff8cbf78
                 FROM linhas;
             `;
 
