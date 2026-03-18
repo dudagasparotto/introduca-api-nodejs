@@ -5,7 +5,7 @@ module.exports = {
         try{
 
             const sql = `
-                SELECT id_rota, id_ponto, id_linha, ordem_sequencia_rotas
+                SELECT id_rota, id_ponto, id_linha
                 FROM rotas;
             `;
 
@@ -31,24 +31,23 @@ module.exports = {
     },
     async cadastrarrotas (request, response) {
         try{
-            const { id_do_Ponto, id_da_Linha, ordem_sequencia } = request.body;
+            const { id_do_Ponto, id_da_Linha } = request.body;
 
             const sql = `
                 INSERT INTO rotas 
-                    (id_ponto, id_linha, ordem_sequencia_rotas) 
+                    (id_ponto, id_linha) 
                 VALUES
                     (?, ?, ?);
             `;
 
-            const values = [id_do_Ponto, id_da_Linha, ordem_sequencia];
+            const values = [id_do_Ponto, id_da_Linha];
 
             const [result] = await db.query(sql, values);
 
             const dados = {
                 id: result.insertId,
                 id_do_Ponto, 
-                id_da_Linha, 
-                ordem_sequencia
+                id_da_Linha
             };
 
             return response.status(200).json(
@@ -70,18 +69,18 @@ module.exports = {
     },
     async editarrotas (request, response) {
         try{
-            const { id_do_Ponto, id_da_Linha, ordem_sequencia } = request.body;
+            const { id_do_Ponto, id_da_Linha } = request.body;
             
             const { id } = request.params;
             
             const sql = `
                 UPDATE rotas SET
-                    id_ponto = ?, id_linha = ?, ordem_sequencia_rotas = ?
+                    id_ponto = ?, id_linha = ?
                 WHERE
                     id_rota = ?;
             `;
 
-            const values = [ id_do_Ponto, id_da_Linha, ordem_sequencia, id];
+            const values = [ id_do_Ponto, id_da_Linha, id];
 
             const [result] = await db.query(sql, values);
 
@@ -96,8 +95,7 @@ module.exports = {
             const dados = {
                 id, 
                 id_do_Ponto, 
-                id_da_Linha, 
-                ordem_sequencia
+                id_da_Linha
             };
             return response.status(200).json(
                 {

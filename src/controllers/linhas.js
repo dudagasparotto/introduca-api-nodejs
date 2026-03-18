@@ -5,7 +5,7 @@ module.exports = {
         try{
 
             const sql = `
-                SELECT id_linha, nome_linhas, descricao_linha
+                SELECT id_linha, nome_linhas
                 FROM linhas;
             `;
 
@@ -32,23 +32,22 @@ module.exports = {
     async cadastrarlinhas (request, response) {
         try{
 
-            const { nome_da_linha, descricao_da_linha } = request.body;
+            const { nome_da_linha } = request.body;
 
             const sql = `
                 INSERT INTO linhas 
-                    (nome_linhas, descricao_linha) 
+                    (nome_linhas) 
                 VALUES
                     (?, ?);
             `;
 
-            const values = [nome_da_linha, descricao_da_linha];
+            const values = [nome_da_linha];
 
             const [result] = await db.query(sql, values);
 
             const dados = {
                 id: result.insertId,
-                nome_da_linha,
-                descricao_da_linha
+                nome_da_linha
             };
 
             return response.status(200).json(
@@ -70,18 +69,18 @@ module.exports = {
     },
     async editarlinhas (request, response) {
         try{
-            const { nome_da_linha, descricao_da_linha } = request.body;
+            const { nome_da_linha } = request.body;
             
             const { id } = request.params;
             
             const sql = `
                 UPDATE linhas SET
-                    nome_linhas = ?, descricao_linha = ?
+                    nome_linhas = ?
                 WHERE
                     id_linha = ?;
             `;
 
-            const values = [nome_da_linha, descricao_da_linha, id];
+            const values = [nome_da_linha, id];
 
             const [result] = await db.query(sql, values);
 
@@ -95,8 +94,7 @@ module.exports = {
             
             const dados = {
                 id,
-                nome_da_linha,
-                descricao_da_linha
+                nome_da_linha
             };
 
             return response.status(200).json(
