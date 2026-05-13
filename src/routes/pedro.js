@@ -5,10 +5,10 @@ const RotaOnibusController = require('../controllers/rotaOnibus');
 const RotasController = require('../controllers/rotas');
 const LinhasController = require('../controllers/linhas');
 
-router.get('/rotaOnibus', RotaOnibusController.listarrotaOnibus);
-router.post('/rotaOnibus', RotaOnibusController.cadastrarrotaOnibus);
-router.patch('/rotaOnibus/:id', RotaOnibusController.editarrotaOnibus);
-router.delete('/rotaOnibus/:id', RotaOnibusController.apagarrotaOnibus);
+// router.get('/rotaOnibus', RotaOnibusController.listarrotaOnibus);
+// router.post('/rotaOnibus', RotaOnibusController.cadastrarrotaOnibus);
+// router.patch('/rotaOnibus/:id', RotaOnibusController.editarrotaOnibus);
+// router.delete('/rotaOnibus/:id', RotaOnibusController.apagarrotaOnibus);
 
 router.get('/rotas', RotasController.listarrotas);
 router.post('/rotas', RotasController.cadastrarrotas);

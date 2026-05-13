@@ -92,12 +92,12 @@ INSERT INTO localizacao (id_rota_onibus, latitude_localizacao, longitude_localiz
 (5, -23.60000000, -46.65000000, '2025-10-07 12:10:00');
 
 -- Avaliações (6 registros) -> referência usuario e motorista
-INSERT INTO avaliacao (id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) VALUES
-(2, 1, 5, 'Motorista muito atencioso e direção segura.', '2025-09-30 14:20:00'),
-(3, 2, 4, 'Ônibus limpo, porém atrasou 10 minutos.', '2025-09-28 09:10:00'),
-(1, 3, 5, 'Viagem excelente, prestou informações.', '2025-09-25 18:05:00'),
-(5, 4, 3, 'Atendimento razoável, poderia melhorar.', '2025-10-03 07:50:00'),
-(6, 5, 4, 'Boa viagem, motorista educado.', '2025-10-04 13:30:00'),
-(2, 6, 2, 'Veículo com cheiro forte de combustível.', '2025-10-06 16:00:00');
+INSERT INTO avaliacao ( id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) VALUES
+( 1, 5, 'Motorista muito atencioso e direção segura.', '2025-09-30 14:20:00'),
+( 2, 4, 'Ônibus limpo, porém atrasou 10 minutos.', '2025-09-28 09:10:00'),
+( 3, 5, 'Viagem excelente, prestou informações.', '2025-09-25 18:05:00'),
+(4, 3, 'Atendimento razoável, poderia melhorar.', '2025-10-03 07:50:00'),
+( 5, 4, 'Boa viagem, motorista educado.', '2025-10-04 13:30:00'),
+( 6, 2, 'Veículo com cheiro forte de combustível.', '2025-10-06 16:00:00');
 
 -- Fim do arquivo inserts.sql

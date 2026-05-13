@@ -15,9 +15,4 @@ router.post('/pontos', PontosController.cadastrarpontos);
 router.patch('/pontos/:id', PontosController.editarpontos);
 router.delete('/pontos', PontosController.apagarpontos);
 
-router.get('/localizacao', LocalizacaoController.listarlocalizacao);
-router.post('/localizacao', LocalizacaoController.cadastrarlocalizacao);
-router.patch('/localizacao/:id', LocalizacaoController.editarlocalizacao);
-router.delete('/localizacao', LocalizacaoController.apagarlocalizacao);
-
 module.exports = router;

@@ -1,170 +1,328 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-async listarAvaliacao(require, response) {  //READ
+
+    // LISTAR
+    async listarAvaliacao(request, response) {
 
     try {
-    const {pesquisa} = require.query;
-    const nota_avaliacao = pesquisa ? `%${pesquisa}` : `%`; // pesquisa com parametro
 
-    const sql = `SELECT 
-                    id_avaliacao, id_usuario, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao
-                FROM 
-                    avaliacao
-                WHERE 
-                    nota_avaliacao like ?;` ;
+        const { id_motorista } = request.params;
 
-        const values = [nota_avaliacao];
-        const [rows] = await db.query(sql,values);
-        const nItens = rows.length;
-
-        return response.status(200).json(
-            {
-                sucesso: true, 
-                mensagem: 'lista de avaliação obtida com sucesso',
-                nItens,
-                dados: rows
-            }
-        ); 
-    }
-    catch (error) {
-            return response.status(500).json(
-                {
-                    sucesso: false, 
-                    mensagem: `Erro ao listar a avaliação; ${error.message}`,
-                    dados: null 
-                }
-            ); 
-        }           
-},
-
-    async cadastrarAvaliacao(require, response) { //CREATE
-
-        try {
-
-        const {id_motorista,  nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body; //captura dos dados enviados pelo cliente
-
-        const sql = `INSERT INTO avaliacao 
-                    (id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao) 
-                    VALUES ( ?, ?, ?, ?);` ;    
-
-            
-            const values = [id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao]; //definição dos dados a serem inseridos em uma array
-            
-            const [ result ] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
-
-            const dados = {  //identificação do ID do registro inserido
-                id: result.insertId,
-                nota_avaliacao,
-                comentario_avaliacao,
-                data_avaliacao
-            }
-            
-            return response.status(200).json(
-                {   
-                sucesso: true, 
-                mensagem: 'Cadastro da avaliação realizado com sucesso',
-                dados: dados
-                }
-            ); 
-        }
-    catch (error) {
-            return response.status(500).json(
-                {
-                    sucesso: false, 
-                    mensagem: `Erro ao cadastrar avaliação: ${error.message}`,
-                    dados: error.message
-                }
-            ); 
-        } 
-    }, 
-        async atualizarAvaliacao(require, response) {  //UPDATE
-        try {
-            //parâmetros recebidos pelo corpo da requisição
-            const { id_avaliacao, id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao } = require.body;
-            
-            //parâmetro recebido pela URL da requisição
-            const {id} = require.params;
-
-            //instruções SQL para atualização do registro
-            const sql =    `UPDATE avaliacao
-                            SET
-                                id_motorista = ?,
-                                nota_avaliacao = ?,
-                                comentario_avaliacao = ?,
-                                data_avaliacao = ?
-                            WHERE id_avaliacao = ?;` ;
-         
-            //definição dos dados a serem atualizados em uma array
-            const values = [ id_motorista, nota_avaliacao, comentario_avaliacao, data_avaliacao, id_avaliacao ];
-
-            //execução e confirmação da instrução SQL passando os parâmetros
-            const [result] = await db.query(sql, values); 
-
-            if (result.affectedRows === 0) {
-                return response.status(404).json({
-                    sucesso: false,
-                    mensagem: `Avaliação ${id} não encontrada para atualização`,
-                    dados: null
-                });
-            }
-            const dados = {
-                id: id_avaliacao,
+        const sql = `
+            SELECT 
+                id_avaliacao,
                 id_motorista,
                 nota_avaliacao,
                 comentario_avaliacao,
                 data_avaliacao
-            }
+            FROM 
+                avaliacao
+            WHERE 
+                id_motorista = ?
+            ORDER BY data_avaliacao DESC;
+        `;
 
-        return response.status(200).json(
-            {
-                sucesso: true, 
-                mensagem: `avaliação ${id} atualizada com sucesso!`,
-                dados 
-            }); 
-    }
-    catch (error) {
-            return response.status(500).json(
-                {
-                sucesso: false, 
-                mensagem: `Erro ao atualizar a avaliação: ${error.message}`,
-                dados: error.message  
-                }
-            ); 
-          } 
-        }, 
+        const values = [id_motorista];
 
-        async apagarAvaliacao(require, response) {  //DELET
-            try {
+        const [rows] =
+            await db.query(sql, values);
 
-            const {id} = require.params ;
-            const sql = `DELETE FROM avaliacao WHERE id_avaliacao = ?;` ;
-            const values = [id];
-            const [result] = await db.query(sql, values); 
-            
-            if (result.affectedRows === 0) {
-                return response.status(404).json({
-                    sucesso: false,
-                    mensagem: `Avaliação ${id} não encontrada para exclusão`,
-                    dados: null
-                });
-            }
+        return response.status(200).json({
 
-            return response.status(200).json(
-                {
-                sucesso: true, 
-                mensagem: `Avaliação ${id} apagada com sucesso`,
+            sucesso: true,
+
+            mensagem:
+                'Lista de avaliações obtida com sucesso',
+
+            nItens: rows.length,
+
+            dados: rows
+
+        });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao listar avaliação: ${error.message}`,
+
                 dados: null
-                }); 
+
+            });
+
+        }   
+
+    },
+
+    // MÉDIA
+    async mediaAvaliacao(request, response) {
+
+        try {
+
+            const { id_motorista } =
+                request.params;
+
+            const sql = `
+                SELECT 
+                    ROUND(
+                        AVG(nota_avaliacao),
+                        1
+                    ) AS media
+                FROM avaliacao
+                WHERE id_motorista = ?;
+            `;
+
+            const values = [id_motorista];
+
+            const [rows] =
+                await db.query(sql, values);
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                media:
+                    rows[0].media || 0
+
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao calcular média: ${error.message}`,
+
+                dados: null
+
+            });
+
+        }
+
+    },
+
+    // CADASTRAR
+    async cadastrarAvaliacao(request, response) {
+
+        try {
+
+            const {
+                id_motorista,
+                nota_avaliacao,
+                comentario_avaliacao,
+                data_avaliacao
+            } = request.body;
+
+            const sql = `
+                INSERT INTO avaliacao 
+                (
+                    id_motorista,
+                    nota_avaliacao,
+                    comentario_avaliacao,
+                    data_avaliacao
+                ) 
+                VALUES (?, ?, ?, ?);
+            `;
+
+            const values = [
+                id_motorista,
+                nota_avaliacao,
+                comentario_avaliacao,
+                data_avaliacao
+            ];
+
+            const [result] =
+                await db.query(sql, values);
+
+            const dados = {
+
+                id: result.insertId,
+
+                id_motorista,
+
+                nota_avaliacao,
+
+                comentario_avaliacao,
+
+                data_avaliacao
+
+            };
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    'Cadastro da avaliação realizado com sucesso',
+
+                dados
+
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao cadastrar avaliação: ${error.message}`,
+
+                dados: error.message
+
+            });
+
+        }
+
+    },
+
+    // UPDATE
+    async atualizarAvaliacao(request, response) {
+
+        try {
+
+            const {
+                id_motorista,
+                nota_avaliacao,
+                comentario_avaliacao,
+                data_avaliacao
+            } = request.body;
+
+            const { id } =
+                request.params;
+
+            const sql = `
+                UPDATE avaliacao
+                SET
+                    id_motorista = ?,
+                    nota_avaliacao = ?,
+                    comentario_avaliacao = ?,
+                    data_avaliacao = ?
+                WHERE 
+                    id_avaliacao = ?;
+            `;
+
+            const values = [
+
+                id_motorista,
+
+                nota_avaliacao,
+
+                comentario_avaliacao,
+
+                data_avaliacao,
+
+                id
+
+            ];
+
+            const [result] =
+                await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+
+                return response.status(404).json({
+
+                    sucesso: false,
+
+                    mensagem:
+                        `Avaliação ${id} não encontrada`,
+
+                    dados: null
+
+                });
+
             }
 
-            catch (error) {
-            return response.status(500).json(
-                {
-                sucesso: false, 
-                mensagem: `Erro ao apagar a avaliação: ${error.message}`,
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    `Avaliação ${id} atualizada com sucesso`
+
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao atualizar avaliação: ${error.message}`,
+
                 dados: error.message
-                }); 
+
+            });
+
+        }
+
+    },
+
+    // DELETE
+    async apagarAvaliacao(request, response) {
+
+        try {
+
+            const { id } =
+                request.params;
+
+            const sql = `
+                DELETE FROM avaliacao
+                WHERE id_avaliacao = ?;
+            `;
+
+            const values = [id];
+
+            const [result] =
+                await db.query(sql, values);
+
+            if (result.affectedRows === 0) {
+
+                return response.status(404).json({
+
+                    sucesso: false,
+
+                    mensagem:
+                        `Avaliação ${id} não encontrada`,
+
+                    dados: null
+
+                });
+
             }
-        }                           
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    `Avaliação ${id} apagada com sucesso`
+
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao apagar avaliação: ${error.message}`,
+
+                dados: error.message
+
+            });
+
+        }
+
+    }
+
 };

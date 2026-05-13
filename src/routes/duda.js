@@ -2,19 +2,19 @@ const express = require('express');
 const router =  express.Router();
 
 const AvaliacaoController = require ('../controllers/Avaliacao');
-const ManutencaoControllers = require ('../controllers/Manutencao');
+// const ManutencaoControllers = require ('../controllers/Manutencao');
 const HorariosControllers = require ('../controllers/horarios');
 
-router.get('/avaliacao', AvaliacaoController.listarAvaliacao);
+router.get('/avaliacao/:id_motorista', AvaliacaoController.listarAvaliacao);
 router.post('/avaliacao', AvaliacaoController.cadastrarAvaliacao);
 router.patch('/avaliacao/:id', AvaliacaoController.atualizarAvaliacao);
 router.delete('/avaliacao/:id', AvaliacaoController.apagarAvaliacao);
 
 
-router.get('/manutencao', ManutencaoControllers.listarManutencao);
-router.post('/manutencao', ManutencaoControllers.cadastrarManutencao);
-router.patch('/manutencao/:id', ManutencaoControllers.atualizarManutencao);
-router.delete('/manutencao/:id', ManutencaoControllers.apagarManutencao);
+// router.get('/manutencao', ManutencaoControllers.listarManutencao);
+// router.post('/manutencao', ManutencaoControllers.cadastrarManutencao);
+// router.patch('/manutencao/:id', ManutencaoControllers.atualizarManutencao);
+// router.delete('/manutencao/:id', ManutencaoControllers.apagarManutencao);
 
 
 router.get('/horarios', HorariosControllers.listarHorarios);
