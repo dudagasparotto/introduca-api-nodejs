@@ -60,7 +60,7 @@ module.exports = {
             catch (error) {
                 return res.status(500).json({
                     sucesso: false, 
-                    mensagem: 'Erro ao cadastrar usuário',
+                    mensagem: `Erro ao cadastrar usuário`,
                     dados: error.message
                 }); 
             } 

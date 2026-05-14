@@ -37,7 +37,7 @@ module.exports = {
                 return response.status(500).json(
                     {
                         sucesso: false,
-                        mensagem: 'Erro ao cadastrar a avaliação: ${error.message}',
+                        mensagem: `Erro ao cadastrar a avaliação: ${error.message}`,
                         dados: null
                     }
                 );

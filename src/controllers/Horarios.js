@@ -67,7 +67,7 @@ module.exports = {
                 return response.status(500).json(
                     {
                         sucesso: false, 
-                        mensagem: 'Erro ao cadastrar Horarios: ${error.message}',
+                        mensagem: `Erro ao cadastrar Horarios: ${error.message}`,
                         dados: error.message 
                     }
                 ); 

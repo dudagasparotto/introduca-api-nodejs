@@ -67,7 +67,7 @@ module.exports = {
                 return res.status(500).json(
  {
                     sucesso: false, 
-                    mensagem: 'Erro ao cadastrar tipos de usuário',
+                    mensagem: `Erro ao cadastrar tipos de usuário`,
                     dados: error.message 
  }); 
                } 

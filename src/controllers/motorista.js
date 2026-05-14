@@ -9,11 +9,17 @@ module.exports = {
             const id_motorista = nome ? `%${nome}%` : `%`;
             const sql = `
                 SELECT 
-                    id_motorista,nome_motorista, cpf_motorista, cnh_motorista, foto_motorista
+                    id_motorista, 
+                    nome_motorista,
+                    cpf_motorista,
+                    cnh_motorista, 
+                    foto_motorista
                 FROM 
                     motorista
+                WHERE
+                    nome_motorista LIKE ?
                 ORDER BY
-                    id_motorista like ?;
+                    id_motorista;
             `;
 
             const values = [id_motorista];
@@ -35,6 +41,63 @@ module.exports = {
             dados: error.message
             });
         }           
+    },
+
+    async buscarMotorista(request, response) {
+
+        try {
+
+            const { id } = request.params;
+
+            const sql = `
+                SELECT
+                    id_motorista,
+                    nome_motorista,
+                    cpf_motorista,
+                    cnh_motorista,
+                    foto_motorista
+                FROM motorista
+                WHERE id_motorista = ?;
+            `;
+
+            const values = [id];
+
+            const [rows] =
+                await db.query(sql, values);
+
+            if (rows.length === 0) {
+
+                return response.status(404).json({
+
+                    sucesso: false,
+                    mensagem: 'Motorista não encontrado',
+                    dados: null
+
+                });
+
+            }
+
+            return response.status(200).json({
+
+                sucesso: true,
+                mensagem: 'Motorista encontrado',
+                dados: rows[0]
+
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+                mensagem:
+                    'Erro ao buscar motorista.',
+                dados: error.message
+
+            });
+
+        }
+
     },
 
     async cadastrarMotorista(request, response) {
@@ -70,7 +133,7 @@ module.exports = {
         catch (error) {
             return response.status(500).json({
                 sucesso: false, 
-                mensagem: 'Erro ao cadastrar motorista  ${error.message}',
+                mensagem: `Erro ao cadastrar motorista  ${error.message}`,
                 dados: error.message
             }); 
         } 

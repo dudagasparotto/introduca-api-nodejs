@@ -6,6 +6,7 @@ const AvaliacaoController = require ('../controllers/Avaliacao');
 const HorariosControllers = require ('../controllers/horarios');
 
 router.get('/avaliacao/:id_motorista', AvaliacaoController.listarAvaliacao);
+router.get('/mediaAvaliacao/:id_motorista', AvaliacaoController.mediaAvaliacao);
 router.post('/avaliacao', AvaliacaoController.cadastrarAvaliacao);
 router.patch('/avaliacao/:id', AvaliacaoController.atualizarAvaliacao);
 router.delete('/avaliacao/:id', AvaliacaoController.apagarAvaliacao);

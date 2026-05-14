@@ -5,7 +5,8 @@ const motoristaController = require('../controllers/motorista');
 const usuariosController = require('../controllers/usuarios');
 const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
 
-router.get('/motoristas', motoristaController.listarMotorista);
+router.get('/motoristas/', motoristaController.listarMotorista);
+router.get('/motoristas/:id', motoristaController.buscarMotorista);
 router.post('/motoristas', motoristaController.cadastrarMotorista);
 router.patch('/motoristas/:id', motoristaController.atualizarMotorista);
 router.delete('/motoristas/:id', motoristaController.apagarMotorista);
