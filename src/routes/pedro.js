@@ -10,8 +10,8 @@ router.post('/rotaOnibus', RotaOnibusController.cadastrarrotaOnibus);
 router.patch('/rotaOnibus/:id', RotaOnibusController.editarrotaOnibus);
 router.delete('/rotaOnibus/:id', RotaOnibusController.apagarrotaOnibus);
 
-router.get('/rotas', RotasController.listarrotas);
-router.post('/rotas', RotasController.cadastrarrotas);
+router.get('/rotas/:id', RotasController.listarrotas);
+router.post('/rotas/:id', RotasController.cadastrarrotas);
 router.patch('/rotas/:id', RotasController.editarrotas);
 router.delete('/rotas/:id', RotasController.apagarrotas);
 

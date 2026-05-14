@@ -5,7 +5,7 @@ module.exports = {
         try{
 
             const sql = `
-                SELECT id_rota, id_ponto, id_linha
+                SELECT id_rota, id_ponto, id_linha,
                 FROM rotas;
             `;
 
