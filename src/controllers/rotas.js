@@ -1,34 +1,42 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarrotas (request, response) {
-        try{
+   async listarrotas (request, response) {
 
-            const sql = `
-                SELECT id_rota, id_ponto, id_linha,
-                FROM rotas;
-            `;
+    try {
 
-            const [rotas] = await db.query(sql);
+        const sql = `
+            SELECT
+                r.id_rota,
+                r.id_ponto,
+                r.id_linha,
+                r.mapa,
+                l.nome_linhas
+            FROM rotas r
+            INNER JOIN linhas l
+                ON r.id_linha = l.id_linha;
+        `;
 
-            return response.status(200).json(
-                {
-                sucesso: true,
-                mensagem: 'Lista da rota obtida com sucesso',
-                itens: rotas.length,
-                dados: rotas
-                }
-            );
-        } catch (error) {
-            return response.status(500).json(
-                {
-                sucesso: false,
-                mensagem: `Erro ao listar a rota: ${error.message}`,
-                dados: null
-                }
-            );
-        }
-    },
+        const [rotas] = await db.query(sql);
+
+        return response.status(200).json({
+            sucesso: true,
+            mensagem: 'Lista da rota obtida com sucesso',
+            itens: rotas.length,
+            dados: rotas
+        });
+
+    } catch (error) {
+
+        return response.status(500).json({
+            sucesso: false,
+            mensagem: `Erro ao listar a rota: ${error.message}`,
+            dados: null
+        });
+
+    }
+
+},
     async cadastrarrotas (request, response) {
         try{
             const { id_do_Ponto, id_da_Linha } = request.body;
