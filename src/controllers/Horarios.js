@@ -1,149 +1,343 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarHorarios(require, response) {
+
+    async listarHorarios(request, response) {
 
         try {
 
-            const sql= `SELECT 
-                            id_horario, id_ponto, passagem_horarios
-                        FROM
-                            horarios
-                        ORDER BY 
-                            passagem_horarios ASC;`;  //COLOCA "PASSAGEM HORARIOS" EM ORDEM DO MENOR PARA O MAIOR
-            
-            const [rows] = await db.query(sql);
+            const sql = `
+                SELECT
+                    h.id_horario,
+                    h.id_ponto,
+                    h.passagem_horarios,
 
-            return response.status(200).json(
-                {
-                    sucesso: true, 
-                    mensagem: 'lista de Horarios obtida com sucesso',
-                    itens: rows.length,
-                    dados: rows
+                    p.id_pontos,
+                    p.nome_pontos,
+
+                    l.id_linha,
+                    l.nome_linhas
+
+                FROM horarios h
+
+                INNER JOIN pontos p
+                    ON h.id_ponto = p.id_pontos
+
+                INNER JOIN linhas l
+                    ON p.id_linha = l.id_linha
+
+                ORDER BY
+                    l.nome_linhas ASC,
+                    p.nome_pontos ASC,
+                    h.passagem_horarios ASC;
+            `;
+
+            const [rows] =
+                await db.query(sql);
+
+            const linhas = [];
+
+            rows.forEach((item) => {
+
+                let linha = linhas.find(
+                    (l) =>
+                        l.linha ===
+                        item.nome_linhas
+                );
+
+                if (!linha) {
+
+                    linha = {
+
+                        linha:
+                            item.nome_linhas,
+
+                        pontos: []
+
+                    };
+
+                    linhas.push(linha);
+
                 }
-            ); 
+
+                let ponto =
+                    linha.pontos.find(
+                        (p) =>
+                            p.nome ===
+                            item.nome_pontos
+                    );
+
+                if (!ponto) {
+
+                    ponto = {
+
+                        nome:
+                            item.nome_pontos,
+
+                        horarios: []
+
+                    };
+
+                    linha.pontos.push(
+                        ponto
+                    );
+
+                }
+
+                ponto.horarios.push(
+                    item.passagem_horarios
+                );
+
+            });
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    'Horários carregados com sucesso',
+
+                dados: linhas
+
+            });
+
+        } catch (error) {
+
+            console.log(error);
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao listar horários: ${error.message}`,
+
+                dados: null
+
+            });
+
         }
-        catch (error) {
-                return response.status(500).json(
-                    {
-                        sucesso: false, 
-                        mensagem: 'Erro ao listar os Horarios ${error.message}',
-                        dados: null 
-                    }
-                ); 
-            }           
+
     },
 
-        async cadastrarHorarios(require, response) {
+    async cadastrarHorarios(request, response) {
 
-            try {
+        try {
 
-            const {id_ponto, passagem_horarios} = require.body; //captura dos dados enviados pelo cliente
-            
-            //instrução SQL para inserção dos dados
-            const sql = `INSERT INTO   
-            horarios (id_ponto, passagem_horarios) 
-            VALUES
-            (?,?); `;
-
-            const values = [id_ponto, passagem_horarios]; //definição dos dados a serem inseridos em uma array
-
-            const [result] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
-
-            const dados = {
+            const {
                 id_ponto,
                 passagem_horarios
-            }
+            } = request.body;
 
-                return response.status(200).json(
-                    {   
-                    sucesso: true, 
-                    mensagem: 'Cadastro de Horarios realizado com sucesso',
-                    dados: dados
-                    }
-                ); 
-            }
-        catch (error) {
-                return response.status(500).json(
-                    {
-                        sucesso: false, 
-                        mensagem: `Erro ao cadastrar Horarios: ${error.message}`,
-                        dados: error.message 
-                    }
-                ); 
-            } 
-        }, 
-            async atualizarHorarios(require, response) { //UPDATE
-                try {
+            const sql = `
+                INSERT INTO horarios
+                    (
+                        id_ponto,
+                        passagem_horarios
+                    )
+                VALUES
+                    (?, ?);
+            `;
 
-                const { id_ponto, passagem_horarios } = require.body; //captura dos dados enviados pelo cliente
-                const {id} = require.params;
-                const sql = `UPDATE horarios SET
-                            id_ponto = ?, passagem_horarios = ? 
-                            WHERE id_horario = ?; `;
-                const values = [ id_ponto, passagem_horarios, id ]; //definição dos dados a serem atualizados em uma array
-                const [result] = await db.query(sql, values); //execução da instrução SQL passando os parâmetros
+            const values = [
 
-                if (result.affectedRows === 0) {
-                    return response.status(404).json({
-                        sucesso: false, 
-                        mensagem: `Horario com ID ${id} não encontrado.`,
-                        dados: null
-                    });
+                id_ponto,
+                passagem_horarios
+
+            ];
+
+            const [result] =
+                await db.query(
+                    sql,
+                    values
+                );
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    'Horário cadastrado com sucesso',
+
+                dados: {
+
+                    id:
+                        result.insertId,
+
+                    id_ponto,
+
+                    passagem_horarios
+
                 }
 
-                const dados = {
-                    id_horario: id,
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao cadastrar horário: ${error.message}`,
+
+                dados: null
+
+            });
+
+        }
+
+    },
+
+    async atualizarHorarios(request, response) {
+
+        try {
+
+            const {
+                id_ponto,
+                passagem_horarios
+            } = request.body;
+
+            const { id } =
+                request.params;
+
+            const sql = `
+                UPDATE horarios
+                SET
+                    id_ponto = ?,
+                    passagem_horarios = ?
+                WHERE
+                    id_horario = ?;
+            `;
+
+            const values = [
+
+                id_ponto,
+                passagem_horarios,
+                id
+
+            ];
+
+            const [result] =
+                await db.query(
+                    sql,
+                    values
+                );
+
+            if (
+                result.affectedRows === 0
+            ) {
+
+                return response.status(404).json({
+
+                    sucesso: false,
+
+                    mensagem:
+                        `Horário ${id} não encontrado`,
+
+                    dados: null
+
+                });
+
+            }
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    'Horário atualizado com sucesso',
+
+                dados: {
+
+                    id,
                     id_ponto,
                     passagem_horarios
-                };
 
-                return response.status(200).json(
-                    {
-                    sucesso: true, 
-                    mensagem: `Horarios ${id} atualizados com sucesso`,
-                    dados: dados
-                    }); 
                 }
-                catch (error) {
-                return response.status(500).json(
-                    {
-                    sucesso: false, 
-                    mensagem: `Erro ao atualizar Horario: ${error.message}`,
-                    dados: error.message 
-                    }); 
-               } 
-            },   
 
-            async apagarHorarios(require, response) { //DELETE
-            try {
-                const {id} = require.params;
+            });
 
-                const sql = `DELETE FROM horarios WHERE id_horario = ?; `;
-                const values = [id];
-                const [result] = await db.query(sql, values);
-                if (result.affectedRows === 0) {
-                    return response.status(404).json({
-                        sucesso: false,
-                        mensagem: `Horario com ID ${id} não encontrado.`,
-                        dados: null
-                    });
-                }
-            return response.status(200).json(
-                {
-                    sucesso: true, 
-                    mensagem: `Horario ${id} apagado com sucesso.`,
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao atualizar horário: ${error.message}`,
+
+                dados: null
+
+            });
+
+        }
+
+    },
+
+    async apagarHorarios(request, response) {
+
+        try {
+
+            const { id } =
+                request.params;
+
+            const sql = `
+                DELETE FROM horarios
+                WHERE id_horario = ?;
+            `;
+
+            const values = [id];
+
+            const [result] =
+                await db.query(
+                    sql,
+                    values
+                );
+
+            if (
+                result.affectedRows === 0
+            ) {
+
+                return response.status(404).json({
+
+                    sucesso: false,
+
+                    mensagem:
+                        `Horário ${id} não encontrado`,
+
                     dados: null
-                }); 
+
+                });
+
             }
-        catch (error) {
-                return response.status(500).json(
-                    {
-                    sucesso: false, 
-                    mensagem: `Erro ao apagar o Horario: ${error.message}`,
-                    dados: error.message 
-                    }
-                ); 
-               }
-            }                           
-    };
+
+            return response.status(200).json({
+
+                sucesso: true,
+
+                mensagem:
+                    'Horário removido com sucesso',
+
+                dados: null
+
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+
+                sucesso: false,
+
+                mensagem:
+                    `Erro ao remover horário: ${error.message}`,
+
+                dados: null
+
+            });
+
+        }
+
+    }
+
+};
