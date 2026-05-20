@@ -13,6 +13,6 @@ router.delete('/onibus', OnibusController.apagaronibus);
 router.get('/pontos', PontosController.listarpontos);
 router.post('/pontos', PontosController.cadastrarpontos);
 router.patch('/pontos/:id', PontosController.editarpontos);
-router.delete('/pontos', PontosController.apagarpontos);
+router.delete('/pontos/:id', PontosController.apagarpontos);
 
 module.exports = router;

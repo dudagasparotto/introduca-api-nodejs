@@ -1,14 +1,18 @@
 const db = require('../dataBase/connection');
 
 module.exports = {
-    async listarpontos (request, response) {
-        try{
+    async listarpontos(request, response) {
+        try {
             const { nome } = request.query;
 
             const nome_pontos = nome ? `%${nome}%` : '%';
             const sql = `
-                SELECT 
-                    id_pontos, nome_pontos, latitude_pontos, longitude_pontos
+                SELECT
+                    id_pontos,
+                    nome_pontos,
+                    latitude_pontos,
+                    longitude_pontos,
+                    id_rota
                 FROM
                     pontos
                 WHERE
@@ -20,137 +24,173 @@ module.exports = {
             const values = [nome_pontos];
 
             const [rows] = await db.query(sql, values);
-            const nItens = rows.length;
 
-            const dados = rows.map(nome_pontos => ({
-                id: nome_pontos.id_pontos,
-                nome: nome_pontos.nome_pontos,
-                latitude: nome_pontos.latitude_pontos,
-                longitude: nome_pontos.longitude_pontos
-            }));
-
-            return response.status(200).json(
-                {
+            return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Lista dos pontos obtida com sucesso',
-                nItens,
+                nItens: rows.length,
                 dados: rows
-                }
-            );
+            });
         } catch (error) {
-            return response.status(500).json(
-                {
+            return response.status(500).json({
                 sucesso: false,
                 mensagem: `Erro ao listar os pontos: ${error.message}`,
                 dados: error.message
-                }
-            );
+            });
         }
     },
-    async cadastrarpontos (request, response) {
-        try{
 
-            const {nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos} = request.body;
+    async cadastrarpontos(request, response) {
+        try {
+            const {
+                nome_dos_pontos,
+                latitude_dos_pontos,
+                longitude_dos_pontos,
+                id_rota
+            } = request.body;
+
+            if (!id_rota) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Selecione uma rota para cadastrar o ponto.',
+                    dados: null
+                });
+            }
 
             const sql = `
-                INSERT INTO pontos 
-                    (nome_pontos, latitude_pontos, longitude_pontos) 
+                INSERT INTO pontos
+                    (nome_pontos, latitude_pontos, longitude_pontos, id_rota)
                 VALUES
-                    (?, ?, ?);
+                    (?, ?, ?, ?);
             `;
 
-            const values = [nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos];
+            const values = [
+                nome_dos_pontos,
+                latitude_dos_pontos,
+                longitude_dos_pontos,
+                id_rota
+            ];
 
             const [result] = await db.query(sql, values);
 
-            const dados = {
-                id: result.insertId,
-                nome_dos_pontos, 
-                latitude_dos_pontos, 
-                longitude_dos_pontos
-            }
-
-            return response.status(200).json(
-                {
+            return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Cadastro de pontos realizado com sucesso',
-                dados: dados
+                dados: {
+                    id: result.insertId,
+                    nome_dos_pontos,
+                    latitude_dos_pontos,
+                    longitude_dos_pontos,
+                    id_rota
                 }
-            );
+            });
         } catch (error) {
-            return response.status(500).json(
-                {
+            return response.status(500).json({
                 sucesso: false,
                 mensagem: `Erro ao cadastrar pontos: ${error.message}`,
                 dados: error.message
-                }
-            );
+            });
         }
     },
-    async editarpontos (request, response) {
-        try{
 
-            const { nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos } = request.body;
+    async editarpontos(request, response) {
+        try {
+            const {
+                nome_dos_pontos,
+                latitude_dos_pontos,
+                longitude_dos_pontos,
+                id_rota
+            } = request.body;
+
+            if (!id_rota) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Selecione uma rota para atualizar o ponto.',
+                    dados: null
+                });
+            }
 
             const { id } = request.params;
 
             const sql = `
-                UPDATE pontos SET 
-                    nome_pontos = ?, latitude_pontos = ?, longitude_pontos = ?
+                UPDATE pontos SET
+                    nome_pontos = ?,
+                    latitude_pontos = ?,
+                    longitude_pontos = ?,
+                    id_rota = ?
                 WHERE
                     id_pontos = ?;
             `;
 
-            const values = [ nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos, id];
+            const values = [
+                nome_dos_pontos,
+                latitude_dos_pontos,
+                longitude_dos_pontos,
+                id_rota,
+                id
+            ];
 
             const [result] = await db.query(sql, values);
 
             if (result.affectedRows === 0) {
                 return response.status(404).json({
                     sucesso: false,
-                    mensagem: `Pontos ${id} nâo encontrado!`,
+                    mensagem: `Ponto ${id} não encontrado!`,
                     dados: null
                 });
             }
 
-            const dados = {
-                id_pontos: id,
-                nome_dos_pontos,
-                latitude_dos_pontos,
-                longitude_dos_pontos 
-            };
-
             return response.status(200).json({
                 sucesso: true,
-                mensagem: `Pontos ${id} atualizado com sucesso!`,
-                dados
+                mensagem: `Ponto ${id} atualizado com sucesso!`,
+                dados: {
+                    id_pontos: Number(id),
+                    nome_dos_pontos,
+                    latitude_dos_pontos,
+                    longitude_dos_pontos,
+                    id_rota
+                }
             });
 
         } catch (error) {
             return response.status(500).json({
                 sucesso: false,
-                mensagem: "Erro na requisição.",
+                mensagem: 'Erro na requisição.',
                 dados: error.message
             });
         }
     },
-    async apagarpontos (request, response) {
-        try{
-            return response.status(200).json(
-                {
+
+    async apagarpontos(request, response) {
+        try {
+            const { id } = request.params;
+
+            const sql = `
+                DELETE FROM pontos
+                WHERE id_pontos = ?;
+            `;
+
+            const [result] = await db.query(sql, [id]);
+
+            if (result.affectedRows === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: `Ponto ${id} não encontrado!`,
+                    dados: null
+                });
+            }
+
+            return response.status(200).json({
                 sucesso: true,
                 mensagem: 'Exclusão de pontos realizada com sucesso',
                 dados: null
-                }
-            );
+            });
         } catch (error) {
-            return response.status(500).json(
-                {
+            return response.status(500).json({
                 sucesso: false,
                 mensagem: `Erro ao remover pontos: ${error.message}`,
                 dados: null
-                }
-            );
+            });
         }
     },
 };
