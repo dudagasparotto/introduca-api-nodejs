@@ -4,9 +4,10 @@ const router = express.Router();
 const motoristaController = require('../controllers/motorista');
 const usuariosController = require('../controllers/usuarios');
 const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
+const upload = require('../middlewares/upload');
 
 router.get('/motoristas', motoristaController.listarMotorista);
-router.post('/motoristas', motoristaController.cadastrarMotorista);
+router.post('/motoristas', upload.single('foto'), motoristaController.cadastrarMotorista);
 router.patch('/motoristas/:id', motoristaController.atualizarMotorista);
 router.delete('/motoristas/:id', motoristaController.apagarMotorista);
 

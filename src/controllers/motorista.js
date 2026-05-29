@@ -37,44 +37,66 @@ module.exports = {
         }           
     },
 
-    async cadastrarMotorista(request, response) {
-        try {
-            const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
+   async cadastrarMotorista(request, response) {
 
-            //instrução sql
-            const sql  = `INSERT INTO motorista (nome_motorista, cpf_motorista, cnh_motorista, foto_motorista)
-             VALUES (?,?,?,?);`; 
+    try {
 
-            //Definição dos dados a serem inseridos em uma array
-            const values = [nome_motorista, cpf_motorista, cnh_motorista, foto_motorista];
+        const {
+            nome_motorista,
+            cpf_motorista,
+            cnh_motorista
+        } = request.body;
 
-            //Execulsão da instrução sql passando os parametros 
-            const [result] = await db.query (sql, values);
+        const foto_motorista =
+            request.file?.filename || null;
 
-            
-            // Definição do ID  do registro inserido
-            const dados = {
-                id: result.insertId,
+        const sql = `
+            INSERT INTO motorista
+            (
                 nome_motorista,
                 cpf_motorista,
                 cnh_motorista,
                 foto_motorista
-            }
-            return response.status(200).json({
-                sucesso: true, 
-                mensagem: 'Cadastro do motorista realizado com sucesso', 
-                dados: dados 
-            }); 
-        }
+            )
+            VALUES (?, ?, ?, ?);
+        `;
 
-        catch (error) {
-            return response.status(500).json({
-                sucesso: false, 
-                mensagem: 'Erro ao cadastrar motorista  ${error.message}',
-                dados: error.message
-            }); 
-        } 
-    }, 
+        const values = [
+            nome_motorista,
+            cpf_motorista,
+            cnh_motorista,
+            foto_motorista
+        ];
+
+        const [result] = await db.query(sql, values);
+
+        const dados = {
+            id: result.insertId,
+            nome_motorista,
+            cpf_motorista,
+            cnh_motorista,
+            foto_motorista
+        };
+
+        return response.status(200).json({
+            sucesso: true,
+            mensagem: 'Cadastro do motorista realizado com sucesso',
+            dados
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return response.status(500).json({
+            sucesso: false,
+            mensagem: 'Erro ao cadastrar motorista',
+            dados: error.message
+        });
+
+    }
+
+},
 
     async atualizarMotorista(request, response) {
         try {
