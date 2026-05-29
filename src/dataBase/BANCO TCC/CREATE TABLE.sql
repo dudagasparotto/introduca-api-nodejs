@@ -13,7 +13,7 @@ CREATE TABLE usuarios (
 );
 
 CREATE TABLE motorista (
-    id_motorista INT PRIMARY KEY,
+    id_motorista INT PRIMARY KEY AUTO_INCREMENT,
     nome_motorista VARCHAR (100), 
     cpf_motorista BIGINT NOT NULL,
     cnh_motorista BIGINT NOT NULL,

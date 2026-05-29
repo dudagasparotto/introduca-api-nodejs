@@ -42,10 +42,30 @@ module.exports = {
     try {
 
         const {
+            id_motorista,
             nome_motorista,
             cpf_motorista,
             cnh_motorista
         } = request.body;
+
+        if (!nome_motorista || !cpf_motorista || !cnh_motorista) {
+            return response.status(400).json({
+                sucesso: false,
+                mensagem: 'Informe nome_motorista, cpf_motorista e cnh_motorista.',
+                dados: null
+            });
+        }
+
+        const cpfLimpo = String(cpf_motorista).replace(/\D/g, '');
+        const cnhLimpa = String(cnh_motorista).replace(/\D/g, '');
+
+        if (!cpfLimpo || !cnhLimpa) {
+            return response.status(400).json({
+                sucesso: false,
+                mensagem: 'CPF e CNH devem conter apenas números válidos.',
+                dados: null
+            });
+        }
 
         const foto_motorista =
             request.file?.filename || null;
@@ -53,28 +73,37 @@ module.exports = {
         const sql = `
             INSERT INTO motorista
             (
+                id_motorista,
                 nome_motorista,
                 cpf_motorista,
                 cnh_motorista,
                 foto_motorista
             )
-            VALUES (?, ?, ?, ?);
+            SELECT
+                LAST_INSERT_ID(COALESCE(?, COALESCE(MAX(id_motorista), 0) + 1)),
+                ?,
+                ?,
+                ?,
+                ?
+            FROM motorista;
         `;
 
         const values = [
+            id_motorista || null,
             nome_motorista,
-            cpf_motorista,
-            cnh_motorista,
+            cpfLimpo,
+            cnhLimpa,
             foto_motorista
         ];
 
         const [result] = await db.query(sql, values);
+        const idCadastrado = id_motorista || result.insertId;
 
         const dados = {
-            id: result.insertId,
+            id: idCadastrado,
             nome_motorista,
-            cpf_motorista,
-            cnh_motorista,
+            cpf_motorista: cpfLimpo,
+            cnh_motorista: cnhLimpa,
             foto_motorista
         };
 
@@ -153,7 +182,48 @@ module.exports = {
                 dados: error.message
             }); 
         } 
-    },   
+    }, 
+    async buscarMotorista(req, res) {
+    try {
+
+        const { id } = req.params;
+
+        const sql = `
+            SELECT
+                id_motorista,
+                nome_motorista,
+                cpf_motorista,
+                cnh_motorista,
+                foto_motorista
+            FROM motorista
+            WHERE id_motorista = ?;
+        `;
+
+        const values = [id];
+
+        const [rows] = await db.query(sql, values);
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                mensagem: 'Motorista não encontrado'
+            });
+        }
+
+        return res.status(200).json({
+            sucesso: true,
+            dados: rows[0]
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            sucesso: false,
+            mensagem: error.message
+        });
+
+    }
+},  
             
     async apagarMotorista(request, response) {
         try { 

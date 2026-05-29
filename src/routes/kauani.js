@@ -10,6 +10,7 @@ router.get('/motoristas', motoristaController.listarMotorista);
 router.post('/motoristas', upload.single('foto'), motoristaController.cadastrarMotorista);
 router.patch('/motoristas/:id', motoristaController.atualizarMotorista);
 router.delete('/motoristas/:id', motoristaController.apagarMotorista);
+router.get('/motoristas/:id', motoristaController.buscarMotorista);
 
 router.get('/usuarios', usuariosController.listarUsuario);
 router.post('/usuarios', usuariosController.cadastrarUsuario);
