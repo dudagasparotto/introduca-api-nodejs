@@ -8,7 +8,7 @@ module.exports = {
             const nome_pontos = nome ? `%${nome}%` : '%';
             const sql = `
                 SELECT 
-                    id_pontos, nome_pontos, latitude_pontos, longitude_pontos
+                    id_pontos, nome_pontos, latitude_pontos, longitude_pontos, id_rota
                 FROM
                     pontos
                 WHERE
@@ -26,7 +26,8 @@ module.exports = {
                 id: nome_pontos.id_pontos,
                 nome: nome_pontos.nome_pontos,
                 latitude: nome_pontos.latitude_pontos,
-                longitude: nome_pontos.longitude_pontos
+                longitude: nome_pontos.longitude_pontos,
+                id_rota: nome_pontos.id_rota
             }));
 
             return response.status(200).json(
@@ -51,15 +52,24 @@ module.exports = {
         try{
 
             const {nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos} = request.body;
+            const id_rota = request.body.id_rota || request.body.id_da_rota || request.body.idRota || null;
+
+            if (!id_rota) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'O campo id_rota e obrigatorio para cadastrar pontos',
+                    dados: null
+                });
+            }
 
             const sql = `
                 INSERT INTO pontos 
-                    (nome_pontos, latitude_pontos, longitude_pontos) 
+                    (nome_pontos, latitude_pontos, longitude_pontos, id_rota) 
                 VALUES
-                    (?, ?, ?);
+                    (?, ?, ?, ?);
             `;
 
-            const values = [nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos];
+            const values = [nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos, id_rota];
 
             const [result] = await db.query(sql, values);
 
@@ -67,7 +77,8 @@ module.exports = {
                 id: result.insertId,
                 nome_dos_pontos, 
                 latitude_dos_pontos, 
-                longitude_dos_pontos
+                longitude_dos_pontos,
+                id_rota
             }
 
             return response.status(200).json(
@@ -91,17 +102,18 @@ module.exports = {
         try{
 
             const { nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos } = request.body;
+            const id_rota = request.body.id_rota || request.body.id_da_rota || request.body.idRota || null;
 
             const { id } = request.params;
 
             const sql = `
                 UPDATE pontos SET 
-                    nome_pontos = ?, latitude_pontos = ?, longitude_pontos = ?
+                    nome_pontos = ?, latitude_pontos = ?, longitude_pontos = ?, id_rota = COALESCE(?, id_rota)
                 WHERE
                     id_pontos = ?;
             `;
 
-            const values = [ nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos, id];
+            const values = [ nome_dos_pontos, latitude_dos_pontos, longitude_dos_pontos, id_rota, id];
 
             const [result] = await db.query(sql, values);
 
@@ -117,7 +129,8 @@ module.exports = {
                 id_pontos: id,
                 nome_dos_pontos,
                 latitude_dos_pontos,
-                longitude_dos_pontos 
+                longitude_dos_pontos,
+                id_rota
             };
 
             return response.status(200).json({
