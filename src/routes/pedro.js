@@ -12,6 +12,8 @@ const LinhasController = require('../controllers/linhas');
 
 router.get('/rotas', RotasController.listarrotas);
 router.get('/rotas-com-pontos', RotasController.listarRotasComPontos);
+router.get('/rotas/:id/detalhes', RotasController.buscarDetalhesDaRota);
+router.get('/rotas/:id/motoristas', RotasController.listarMotoristasDaRota);
 router.post('/rotas', RotasController.cadastrarrotas);
 router.patch('/rotas/:id', RotasController.editarrotas);
 router.delete('/rotas/:id', RotasController.apagarrotas);

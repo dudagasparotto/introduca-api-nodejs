@@ -100,6 +100,101 @@ module.exports = {
 
     },
 
+    async listarRotasDoMotorista(request, response) {
+
+        try {
+
+            const { id } = request.params;
+
+            const motoristaSql = `
+                SELECT
+                    id_motorista,
+                    nome_motorista,
+                    foto_motorista
+                FROM motorista
+                WHERE id_motorista = ?;
+            `;
+
+            const rotasSql = `
+                SELECT DISTINCT
+                    r.id_rota,
+                    r.id_linha,
+                    l.nome_linhas AS nome_rota
+                FROM motoristas_rotas mr
+                INNER JOIN rotas r
+                    ON r.id_rota = mr.id_rota
+                INNER JOIN linhas l
+                    ON l.id_linha = r.id_linha
+                WHERE mr.id_motorista = ?
+                ORDER BY l.nome_linhas ASC;
+            `;
+
+            const pontosSql = `
+                SELECT
+                    p.id_rota,
+                    p.id_pontos,
+                    p.nome_pontos
+                FROM pontos p
+                INNER JOIN motoristas_rotas mr
+                    ON mr.id_rota = p.id_rota
+                WHERE mr.id_motorista = ?
+                ORDER BY
+                    p.id_rota ASC,
+                    p.id_pontos ASC;
+            `;
+
+            const [motoristas] = await db.query(motoristaSql, [id]);
+
+            if (motoristas.length === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: 'Motorista nao encontrado',
+                    dados: null
+                });
+            }
+
+            const [rotas] = await db.query(rotasSql, [id]);
+            const [pontos] = await db.query(pontosSql, [id]);
+
+            const dadosRotas = rotas.map((rota) => {
+                const pontosDaRota = pontos.filter(
+                    (ponto) => ponto.id_rota === rota.id_rota
+                );
+
+                return {
+                    id_rota: rota.id_rota,
+                    id_linha: rota.id_linha,
+                    nome_rota: rota.nome_rota,
+                    origem: pontosDaRota[0]?.nome_pontos || '',
+                    destino: pontosDaRota[pontosDaRota.length - 1]?.nome_pontos || '',
+                    quantidade_pontos: pontosDaRota.length,
+                    status: 'Ativa'
+                };
+            });
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Rotas do motorista carregadas com sucesso',
+                dados: {
+                    id_motorista: motoristas[0].id_motorista,
+                    nome: motoristas[0].nome_motorista,
+                    foto: motoristas[0].foto_motorista,
+                    rotas: dadosRotas
+                }
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: `Erro ao listar rotas do motorista: ${error.message}`,
+                dados: null
+            });
+
+        }
+
+    },
+
     async cadastrarMotorista(request, response) {
         try {
             const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
