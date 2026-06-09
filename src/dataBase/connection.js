@@ -20,13 +20,10 @@ const config = {
     há limite para o número de solicitações de conexão enfileiradas. (Padrão: 0)
 */
 
-let pool;
+const pool = mysql.createPool(config);
 
 const initializeDatabase = async () => {
     try {
-        // Cria a pool de conexões
-        pool = mysql.createPool(config);
-
         // Testa a conectividade com uma conexão simples
         const connection = await pool.getConnection();
         console.log('Conexão MySQL estabelecida com sucesso!');
