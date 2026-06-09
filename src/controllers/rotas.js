@@ -38,6 +38,42 @@ function formatarHorario(horario) {
 }
 
 module.exports = {
+    async listarVinculosMotoristasRotas(request, response) {
+
+        try {
+
+            const sql = `
+                SELECT
+                    id_motorista_rota,
+                    id_motorista,
+                    id_rota
+                FROM motoristas_rotas
+                ORDER BY
+                    id_rota,
+                    id_motorista;
+            `;
+
+            const [vinculos] = await db.query(sql);
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Vinculos entre motoristas e rotas carregados com sucesso',
+                itens: vinculos.length,
+                dados: vinculos
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: `Erro ao listar vinculos entre motoristas e rotas: ${error.message}`,
+                dados: []
+            });
+
+        }
+
+    },
+
     async listarrotas(request, response) {
 
         try {

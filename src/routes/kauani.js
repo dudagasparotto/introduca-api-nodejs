@@ -1,15 +1,46 @@
 const express = require('express'); 
+const path = require('path');
+const multer = require('multer');
 const router = express.Router();
 
 const motoristaController = require('../controllers/motorista');
 const usuariosController = require('../controllers/usuarios');
 const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
 
+const uploadMotorista = multer({
+    storage: multer.diskStorage({
+        destination: path.join(__dirname, '../../public/fotos/motoristas'),
+        filename: (request, file, callback) => {
+            const extensao = path.extname(file.originalname).toLowerCase();
+            callback(null, `${Date.now()}-${Math.round(Math.random() * 1E9)}${extensao}`);
+        }
+    }),
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    },
+    fileFilter: (request, file, callback) => {
+        if (!file.mimetype.startsWith('image/')) {
+            return callback(new Error('O arquivo enviado precisa ser uma imagem.'));
+        }
+
+        return callback(null, true);
+    }
+});
+
 router.get('/motoristas/', motoristaController.listarMotorista);
 router.get('/motoristas/:id/rotas', motoristaController.listarRotasDoMotorista);
+router.put('/motoristas/:id/rotas', motoristaController.atualizarRotasDoMotorista);
 router.get('/motoristas/:id', motoristaController.buscarMotorista);
-router.post('/motoristas', motoristaController.cadastrarMotorista);
-router.patch('/motoristas/:id', motoristaController.atualizarMotorista);
+router.post(
+    '/motoristas',
+    uploadMotorista.single('foto'),
+    motoristaController.cadastrarMotorista
+);
+router.patch(
+    '/motoristas/:id',
+    uploadMotorista.single('foto'),
+    motoristaController.atualizarMotorista
+);
 router.delete('/motoristas/:id', motoristaController.apagarMotorista);
 
 router.get('/usuarios', usuariosController.listarUsuario);

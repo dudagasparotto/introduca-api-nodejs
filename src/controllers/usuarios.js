@@ -3,7 +3,7 @@ const db = require('../dataBase/connection');
 module.exports = {
     async listarUsuario(req, res) {
         try {
-            const sql = `SELECT id_usuario, id_tipo_usuario, nome_usuario, senha_usuario
+            const sql = `SELECT id_usuario, id_tipo_usuario, id_motorista, nome_usuario, senha_usuario
             FROM usuarios;`;
 
             const [rows] =  await db.query(sql);
@@ -28,16 +28,29 @@ module.exports = {
 
     async cadastrarUsuario(req, res) {
         try {
-            const {id_tipo_usuario, nome_usuario, senha_usuario} = req.body;
+            const {id_tipo_usuario, id_motorista, nome_usuario, senha_usuario} = req.body;
+
+            if (!id_tipo_usuario || !nome_usuario || !senha_usuario) {
+                return res.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Tipo, nome de usuario e senha sao obrigatorios.',
+                    dados: null
+                });
+            }
 
             //instrução sql 
             const sql = `INSERT INTO usuarios
-            (id_tipo_usuario, nome_usuario, senha_usuario)
+            (id_tipo_usuario, id_motorista, nome_usuario, senha_usuario)
             VALUES 
-                (?, ?, ?, ?, ?);` ; 
+                (?, ?, ?, ?);` ; 
 
                 //Definição dos dados a serem inseridos em uma array
-                const values = [id_tipo_usuario, nome_usuario, senha_usuario];
+                const values = [
+                    id_tipo_usuario,
+                    id_motorista || null,
+                    nome_usuario,
+                    senha_usuario
+                ];
 
                 //Execulsão da instrução sql passando os parametros
                 const [result] = await db.query(sql, values);
@@ -46,6 +59,7 @@ module.exports = {
                 const dados = {
                     id: result.insertId,
                     id_tipo_usuario,
+                    id_motorista: id_motorista || null,
                     nome_usuario, 
                     senha_usuario
                 }; 
@@ -73,18 +87,24 @@ module.exports = {
 
         try {
             // parametros recebidos pelo corpo da requisição
-            const {id_tipo_usuario, nome_usuario, senha_usuario } = req.body;
+            const {id_tipo_usuario, id_motorista, nome_usuario, senha_usuario } = req.body;
            
             // parametros recebidos pelo URL via params =, ex: /usuario/1
             const {id} = req.params;
             
             //instrução sql
             const sql = `UPDATE usuarios
-            SET id_tipo_usuario = ?, nome_usuario = ?, senha_usuario = ?
+            SET id_tipo_usuario = ?, id_motorista = ?, nome_usuario = ?, senha_usuario = ?
             WHERE id_usuario = ?;` ;
 
             //parametros do array com dados que serão atualizados
-            const values = [id_tipo_usuario, nome_usuario, senha_usuario,  id];
+            const values = [
+                id_tipo_usuario,
+                id_motorista || null,
+                nome_usuario,
+                senha_usuario,
+                id
+            ];
 
             //Execulsão e obtenção de confirmação da atualização realizada
             const [result] = await db.query(sql, values);
@@ -101,6 +121,7 @@ module.exports = {
             const dados = {
             id,
             id_tipo_usuario,
+            id_motorista: id_motorista || null,
             nome_usuario,
             senha_usuario
             }; 

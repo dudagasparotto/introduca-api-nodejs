@@ -25,13 +25,78 @@ module.exports = {
             const values = [id_motorista];
 
             const [rows] = await db.query(sql, values);
+            const [avaliacoes] = await db.query(`
+                SELECT
+                    id_avaliacao,
+                    id_motorista,
+                    nota_avaliacao,
+                    comentario_avaliacao,
+                    data_avaliacao
+                FROM avaliacao
+                ORDER BY data_avaliacao DESC, id_avaliacao DESC;
+            `);
+            const [vinculosRotas] = await db.query(`
+                SELECT
+                    mr.id_motorista,
+                    r.id_rota,
+                    l.nome_linhas
+                FROM motoristas_rotas mr
+                INNER JOIN rotas r
+                    ON r.id_rota = mr.id_rota
+                INNER JOIN linhas l
+                    ON l.id_linha = r.id_linha
+                ORDER BY l.nome_linhas ASC;
+            `);
+            const avaliacoesPorMotorista = avaliacoes.reduce((grupos, avaliacao) => {
+                const idMotorista = Number(avaliacao.id_motorista);
+
+                if (!grupos.has(idMotorista)) {
+                    grupos.set(idMotorista, []);
+                }
+
+                grupos.get(idMotorista).push(avaliacao);
+                return grupos;
+            }, new Map());
+            const rotasPorMotorista = vinculosRotas.reduce((grupos, rota) => {
+                const idMotorista = Number(rota.id_motorista);
+
+                if (!grupos.has(idMotorista)) {
+                    grupos.set(idMotorista, []);
+                }
+
+                grupos.get(idMotorista).push({
+                    id_rota: rota.id_rota,
+                    nome_rota: rota.nome_linhas
+                });
+                return grupos;
+            }, new Map());
+            const dados = rows.map((motorista) => {
+                const avaliacoesDoMotorista =
+                    avaliacoesPorMotorista.get(Number(motorista.id_motorista)) || [];
+                const somaNotas = avaliacoesDoMotorista.reduce(
+                    (total, avaliacao) =>
+                        total + Number(avaliacao.nota_avaliacao || 0),
+                    0
+                );
+
+                return {
+                    ...motorista,
+                    rotas:
+                        rotasPorMotorista.get(Number(motorista.id_motorista)) || [],
+                    avaliacoes: avaliacoesDoMotorista,
+                    total_avaliacoes: avaliacoesDoMotorista.length,
+                    media_avaliacao: avaliacoesDoMotorista.length
+                        ? Number((somaNotas / avaliacoesDoMotorista.length).toFixed(1))
+                        : 0
+                };
+            });
             const nItens = rows.length;
 
             return response.status(200).json({
                 sucesso: true, 
                 mensagem: 'listar motorista',
                 nItens,
-                dados: rows
+                dados
             });
 
         } catch (error) {
@@ -195,16 +260,139 @@ module.exports = {
 
     },
 
+    async atualizarRotasDoMotorista(request, response) {
+
+        const connection = await db.getConnection();
+
+        try {
+
+            const { id } = request.params;
+            const idsRotasRecebidos = Array.isArray(request.body.ids_rotas)
+                ? request.body.ids_rotas
+                : [];
+            const idsRotas = [
+                ...new Set(
+                    idsRotasRecebidos
+                        .map((idRota) => Number(idRota))
+                        .filter((idRota) => Number.isInteger(idRota) && idRota > 0)
+                )
+            ];
+
+            if (idsRotas.length === 0) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Selecione pelo menos uma rota para o motorista.',
+                    dados: null
+                });
+            }
+
+            await connection.beginTransaction();
+
+            const [motoristas] = await connection.query(
+                'SELECT id_motorista FROM motorista WHERE id_motorista = ?;',
+                [id]
+            );
+
+            if (motoristas.length === 0) {
+                await connection.rollback();
+
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: 'Motorista nao encontrado.',
+                    dados: null
+                });
+            }
+
+            const placeholders = idsRotas.map(() => '?').join(', ');
+            const [rotas] = await connection.query(
+                `SELECT id_rota FROM rotas WHERE id_rota IN (${placeholders});`,
+                idsRotas
+            );
+
+            if (rotas.length !== idsRotas.length) {
+                await connection.rollback();
+
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Uma ou mais rotas selecionadas nao existem.',
+                    dados: null
+                });
+            }
+
+            await connection.query(
+                'DELETE FROM motoristas_rotas WHERE id_motorista = ?;',
+                [id]
+            );
+
+            const valores = idsRotas.map((idRota) => [Number(id), idRota]);
+
+            await connection.query(
+                'INSERT INTO motoristas_rotas (id_motorista, id_rota) VALUES ?;',
+                [valores]
+            );
+
+            await connection.commit();
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Rotas do motorista atualizadas com sucesso.',
+                dados: {
+                    id_motorista: Number(id),
+                    ids_rotas: idsRotas
+                }
+            });
+
+        } catch (error) {
+
+            await connection.rollback();
+
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: `Erro ao atualizar rotas do motorista: ${error.message}`,
+                dados: null
+            });
+
+        } finally {
+
+            connection.release();
+
+        }
+
+    },
+
     async cadastrarMotorista(request, response) {
         try {
-            const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
+            const {
+                id_motorista,
+                nome_motorista,
+                cpf_motorista,
+                cnh_motorista,
+                foto_motorista
+            } = request.body;
+            const caminhoFoto = request.file
+                ? `fotos/motoristas/${request.file.filename}`
+                : foto_motorista || null;
+
+            if (!id_motorista || !nome_motorista || !cpf_motorista || !cnh_motorista) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'ID, nome, CPF e CNH sao obrigatorios.',
+                    dados: null
+                });
+            }
 
             //instrução sql
-            const sql  = `INSERT INTO motorista (nome_motorista, cpf_motorista, cnh_motorista, foto_motorista)
-             VALUES (?,?,?,?);`; 
+            const sql  = `INSERT INTO motorista (id_motorista, nome_motorista, cpf_motorista, cnh_motorista, foto_motorista)
+             VALUES (?,?,?,?,?);`; 
 
             //Definição dos dados a serem inseridos em uma array
-            const values = [nome_motorista, cpf_motorista, cnh_motorista, foto_motorista];
+            const values = [
+                id_motorista,
+                nome_motorista,
+                cpf_motorista,
+                cnh_motorista,
+                caminhoFoto
+            ];
 
             //Execulsão da instrução sql passando os parametros 
             const [result] = await db.query (sql, values);
@@ -212,13 +400,14 @@ module.exports = {
             
             // Definição do ID  do registro inserido
             const dados = {
-                id: result.insertId,
+                id: Number(id_motorista),
+                id_motorista: Number(id_motorista),
                 nome_motorista,
                 cpf_motorista,
                 cnh_motorista,
-                foto_motorista
+                foto_motorista: caminhoFoto
             }
-            return response.status(200).json({
+            return response.status(201).json({
                 sucesso: true, 
                 mensagem: 'Cadastro do motorista realizado com sucesso', 
                 dados: dados 
@@ -238,6 +427,9 @@ module.exports = {
         try {
             // Parametros recebidos pelo corpo da requisição 
             const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
+            const caminhoFoto = request.file
+                ? `fotos/motoristas/${request.file.filename}`
+                : foto_motorista || null;
 
             //parametro recebido pela URL da requisição
             const {id} = request.params;
@@ -253,7 +445,7 @@ module.exports = {
             `;
 
             // Preparo do array com dados a serem atualizados
-            const values = [nome_motorista, cpf_motorista, cnh_motorista, foto_motorista, id];
+            const values = [nome_motorista, cpf_motorista, cnh_motorista, caminhoFoto, id];
 
             //Execulsão da instrução sql passando os parametros
             const  [result] = await db.query(sql, values);
@@ -268,10 +460,11 @@ module.exports = {
 
             const dados = {
             id,
+            id_motorista: Number(id),
             nome_motorista,
             cpf_motorista,
             cnh_motorista,
-            foto_motorista
+            foto_motorista: caminhoFoto
             };
 
         return response.status(200).json({

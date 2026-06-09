@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const RotaOnibusController = require('../controllers/rotaOnibus');
 const RotasController = require('../controllers/rotas');
 const LinhasController = require('../controllers/linhas');
 
-// router.get('/rotaOnibus', RotaOnibusController.listarrotaOnibus);
-// router.post('/rotaOnibus', RotaOnibusController.cadastrarrotaOnibus);
-// router.patch('/rotaOnibus/:id', RotaOnibusController.editarrotaOnibus);
-// router.delete('/rotaOnibus/:id', RotaOnibusController.apagarrotaOnibus);
-
 router.get('/rotas', RotasController.listarrotas);
+router.get('/motoristas-rotas', RotasController.listarVinculosMotoristasRotas);
 router.get('/rotas-com-pontos', RotasController.listarRotasComPontos);
 router.get('/rotas/:id/detalhes', RotasController.buscarDetalhesDaRota);
 router.get('/rotas/:id/motoristas', RotasController.listarMotoristasDaRota);

@@ -2,6 +2,47 @@ const db = require('../dataBase/connection');
 
 module.exports = {
 
+    async listarTodasAvaliacoes(request, response) {
+
+        try {
+
+            const sql = `
+                SELECT
+                    a.id_avaliacao,
+                    a.id_motorista,
+                    m.nome_motorista,
+                    a.nota_avaliacao,
+                    a.comentario_avaliacao,
+                    a.data_avaliacao
+                FROM avaliacao a
+                INNER JOIN motorista m
+                    ON m.id_motorista = a.id_motorista
+                ORDER BY
+                    a.data_avaliacao DESC,
+                    a.id_avaliacao DESC;
+            `;
+
+            const [rows] = await db.query(sql);
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Lista de avaliacoes obtida com sucesso',
+                nItens: rows.length,
+                dados: rows
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: `Erro ao listar avaliacoes: ${error.message}`,
+                dados: []
+            });
+
+        }
+
+    },
+
     // LISTAR
     async listarAvaliacao(request, response) {
 
@@ -115,9 +156,48 @@ module.exports = {
             const {
                 id_motorista,
                 nota_avaliacao,
-                comentario_avaliacao,
-                data_avaliacao
+                comentario_avaliacao
             } = request.body;
+            const idMotorista = Number(id_motorista);
+            const nota = Number(nota_avaliacao);
+            const comentario = String(comentario_avaliacao || '').trim();
+
+            if (!Number.isInteger(idMotorista) || idMotorista <= 0) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Motorista invalido.',
+                    dados: null
+                });
+            }
+
+            if (!Number.isInteger(nota) || nota < 1 || nota > 5) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'A nota deve ser um numero inteiro entre 1 e 5.',
+                    dados: null
+                });
+            }
+
+            if (comentario.length > 255) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'O comentario deve ter no maximo 255 caracteres.',
+                    dados: null
+                });
+            }
+
+            const [motoristas] = await db.query(
+                'SELECT id_motorista FROM motorista WHERE id_motorista = ?;',
+                [idMotorista]
+            );
+
+            if (motoristas.length === 0) {
+                return response.status(404).json({
+                    sucesso: false,
+                    mensagem: 'Motorista nao encontrado.',
+                    dados: null
+                });
+            }
 
             const sql = `
                 INSERT INTO avaliacao 
@@ -127,41 +207,38 @@ module.exports = {
                     comentario_avaliacao,
                     data_avaliacao
                 ) 
-                VALUES (?, ?, ?, ?);
+                VALUES (?, ?, ?, NOW());
             `;
 
             const values = [
-                id_motorista,
-                nota_avaliacao,
-                comentario_avaliacao,
-                data_avaliacao
+                idMotorista,
+                nota,
+                comentario || null
             ];
 
             const [result] =
                 await db.query(sql, values);
 
-            const dados = {
+            const [avaliacoes] = await db.query(
+                `SELECT
+                    id_avaliacao,
+                    id_motorista,
+                    nota_avaliacao,
+                    comentario_avaliacao,
+                    data_avaliacao
+                FROM avaliacao
+                WHERE id_avaliacao = ?;`,
+                [result.insertId]
+            );
 
-                id: result.insertId,
-
-                id_motorista,
-
-                nota_avaliacao,
-
-                comentario_avaliacao,
-
-                data_avaliacao
-
-            };
-
-            return response.status(200).json({
+            return response.status(201).json({
 
                 sucesso: true,
 
                 mensagem:
                     'Cadastro da avaliação realizado com sucesso',
 
-                dados
+                dados: avaliacoes[0]
 
             });
 
