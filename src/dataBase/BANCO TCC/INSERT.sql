@@ -1,9 +1,3 @@
-INSERT INTO rotas (id_rota, id_ponto, id_linha, linhas) VALUES
-(1, 1, 1, roxa),
-(2, 1, 1, azul),
-(3, 1, 2, laranja),
-(4, 1, 2, amarela);
-
 -- Inserts de exemplo (6 linhas por tabela) – dados realistas e consistentes com chaves estrangeiras
 -- Observação: ajuste ids/autoincrement conforme necessário ao executar
 

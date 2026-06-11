@@ -37,6 +37,36 @@ function formatarHorario(horario) {
     return horario ? String(horario).slice(0, 5) : '';
 }
 
+function corValida(cor) {
+    return /^#[0-9A-F]{6}$/i.test(String(cor || ''));
+}
+
+function normalizarTrajeto(trajeto) {
+    if (trajeto === null || trajeto === undefined || trajeto === '') {
+        return null;
+    }
+
+    const coordenadas = typeof trajeto === 'string'
+        ? JSON.parse(trajeto)
+        : trajeto;
+
+    if (
+        !Array.isArray(coordenadas) ||
+        !coordenadas.every((ponto) =>
+            Array.isArray(ponto) &&
+            ponto.length === 2 &&
+            Number.isFinite(Number(ponto[0])) &&
+            Number.isFinite(Number(ponto[1]))
+        )
+    ) {
+        throw new Error('Trajeto invalido');
+    }
+
+    return JSON.stringify(
+        coordenadas.map((ponto) => [Number(ponto[0]), Number(ponto[1])])
+    );
+}
+
 module.exports = {
     async listarVinculosMotoristasRotas(request, response) {
 
@@ -81,9 +111,11 @@ module.exports = {
             const sql = `
                 SELECT
                     r.id_rota,
-                    r.id_ponto,
+                    NULL AS id_ponto,
                     r.id_linha,
                     r.mapa,
+                    r.cor,
+                    r.trajeto,
                     l.nome_linhas
                 FROM rotas r
                 INNER JOIN linhas l
@@ -117,21 +149,27 @@ module.exports = {
 
             const sql = `
                 SELECT
+                    r.id_rota,
                     l.id_linha,
                     l.nome_linhas,
+                    r.mapa,
+                    r.cor,
+                    r.trajeto,
                     p.id_pontos,
-                    p.nome_pontos
+                    p.nome_pontos,
+                    p.latitude_pontos,
+                    p.longitude_pontos
                 FROM rotas r
 
                 INNER JOIN linhas l
                     ON r.id_linha = l.id_linha
 
-                INNER JOIN pontos p
-                    ON r.id_ponto = p.id_pontos
+                LEFT JOIN pontos p
+                    ON p.id_rota = r.id_rota
 
                 ORDER BY
                     l.nome_linhas ASC,
-                    p.nome_pontos ASC
+                    p.id_pontos ASC
             `;
 
             const [rows] = await db.query(sql);
@@ -140,21 +178,30 @@ module.exports = {
 
             rows.forEach((item) => {
 
-                if (!linhasMap[item.id_linha]) {
+                if (!linhasMap[item.id_rota]) {
 
-                    linhasMap[item.id_linha] = {
-                        id: item.id_linha,
-                        linha: item.nome_linhas,
+                    linhasMap[item.id_rota] = {
+                        id_rota: item.id_rota,
+                        id_linha: item.id_linha,
+                        nome_linha: item.nome_linhas,
+                        nome_linhas: item.nome_linhas,
+                        mapa: item.mapa,
+                        cor: item.cor,
+                        trajeto: item.trajeto,
                         pontos: []
                     };
 
                 }
 
-                linhasMap[item.id_linha].pontos.push({
-                    id: item.id_pontos,
-                    nome: item.nome_pontos,
-                    horarios: []
-                });
+                if (item.id_pontos) {
+                    linhasMap[item.id_rota].pontos.push({
+                        id_ponto: item.id_pontos,
+                        nome_ponto: item.nome_pontos,
+                        latitude: item.latitude_pontos,
+                        longitude: item.longitude_pontos,
+                        horarios: []
+                    });
+                }
 
             });
 
@@ -212,6 +259,8 @@ module.exports = {
                 SELECT
                     r.id_rota,
                     r.id_linha,
+                    r.cor,
+                    r.trajeto,
                     l.nome_linhas AS nome_rota
                 FROM rotas r
                 INNER JOIN linhas l
@@ -267,6 +316,8 @@ module.exports = {
                     id_rota: rota.id_rota,
                     id_linha: rota.id_linha,
                     nome_rota: rota.nome_rota,
+                    cor: rota.cor,
+                    trajeto: rota.trajeto,
                     pontos: pontos.map((ponto) => ({
                         id_ponto: ponto.id_pontos,
                         nome_ponto: ponto.nome_pontos,
@@ -297,22 +348,36 @@ module.exports = {
 
     async cadastrarrotas (request, response) {
         try{
-            const { id_do_Ponto, id_da_Linha } = request.body;
+            const { id_da_Linha, mapa = null } = request.body;
+
+            if (!id_da_Linha) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Informe a linha da rota',
+                    dados: null
+                });
+            }
+
+            const [ultimaRota] = await db.query(`
+                SELECT COALESCE(MAX(id_rota), 0) + 1 AS proximo_id
+                FROM rotas;
+            `);
+
+            const idRota = ultimaRota[0].proximo_id;
 
             const sql = `
                 INSERT INTO rotas 
-                    (id_ponto, id_linha) 
+                    (id_rota, id_linha, mapa)
                 VALUES
-                    (?, ?);
+                    (?, ?, ?);
             `;
 
-            const values = [id_do_Ponto, id_da_Linha];
+            const values = [idRota, id_da_Linha, mapa];
 
-            const [result] = await db.query(sql, values);
+            await db.query(sql, values);
 
             const dados = {
-                id: result.insertId,
-                id_do_Ponto, 
+                id: idRota,
                 id_da_Linha
             };
 
