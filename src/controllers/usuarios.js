@@ -1,9 +1,10 @@
 const db = require('../dataBase/connection');
+const { protegerSenha } = require('../services/senha');
 
 module.exports = {
     async listarUsuario(req, res) {
         try {
-            const sql = `SELECT id_usuario, id_tipo_usuario, id_motorista, nome_usuario, senha_usuario
+            const sql = `SELECT id_usuario, id_tipo_usuario, id_motorista, nome_usuario
             FROM usuarios;`;
 
             const [rows] =  await db.query(sql);
@@ -45,11 +46,12 @@ module.exports = {
                 (?, ?, ?, ?);` ; 
 
                 //Definição dos dados a serem inseridos em uma array
+                const senhaProtegida = await protegerSenha(senha_usuario);
                 const values = [
                     id_tipo_usuario,
                     id_motorista || null,
                     nome_usuario,
-                    senha_usuario
+                    senhaProtegida
                 ];
 
                 //Execulsão da instrução sql passando os parametros
@@ -60,8 +62,7 @@ module.exports = {
                     id: result.insertId,
                     id_tipo_usuario,
                     id_motorista: id_motorista || null,
-                    nome_usuario, 
-                    senha_usuario
+                    nome_usuario
                 }; 
 
             return res.status(200).json({
@@ -93,18 +94,29 @@ module.exports = {
             const {id} = req.params;
             
             //instrução sql
-            const sql = `UPDATE usuarios
-            SET id_tipo_usuario = ?, id_motorista = ?, nome_usuario = ?, senha_usuario = ?
-            WHERE id_usuario = ?;` ;
+            const campos = [
+                'id_tipo_usuario = ?',
+                'id_motorista = ?',
+                'nome_usuario = ?'
+            ];
 
             //parametros do array com dados que serão atualizados
             const values = [
                 id_tipo_usuario,
                 id_motorista || null,
-                nome_usuario,
-                senha_usuario,
-                id
+                nome_usuario
             ];
+
+            if (senha_usuario) {
+                campos.push('senha_usuario = ?');
+                values.push(await protegerSenha(senha_usuario));
+            }
+
+            const sql = `UPDATE usuarios
+            SET ${campos.join(', ')}
+            WHERE id_usuario = ?;` ;
+
+            values.push(id);
 
             //Execulsão e obtenção de confirmação da atualização realizada
             const [result] = await db.query(sql, values);
@@ -122,8 +134,7 @@ module.exports = {
             id,
             id_tipo_usuario,
             id_motorista: id_motorista || null,
-            nome_usuario,
-            senha_usuario
+            nome_usuario
             }; 
 
             return res.status(200).json({

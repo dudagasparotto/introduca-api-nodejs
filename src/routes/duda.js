@@ -4,13 +4,24 @@ const router =  express.Router();
 const AvaliacaoController = require ('../controllers/Avaliacao');
 // const ManutencaoControllers = require ('../controllers/Manutencao');
 const HorariosControllers = require ('../controllers/horarios');
+const { autenticar, exigirAdmin } = require('../middlewares/autenticacao');
 
 router.get('/avaliacao/:id_motorista', AvaliacaoController.listarAvaliacao);
 router.get('/avaliacoes', AvaliacaoController.listarTodasAvaliacoes);
 router.get('/mediaAvaliacao/:id_motorista', AvaliacaoController.mediaAvaliacao);
 router.post('/avaliacao', AvaliacaoController.cadastrarAvaliacao);
-router.patch('/avaliacao/:id', AvaliacaoController.atualizarAvaliacao);
-router.delete('/avaliacao/:id', AvaliacaoController.apagarAvaliacao);
+router.patch(
+    '/avaliacao/:id',
+    autenticar,
+    exigirAdmin,
+    AvaliacaoController.atualizarAvaliacao
+);
+router.delete(
+    '/avaliacao/:id',
+    autenticar,
+    exigirAdmin,
+    AvaliacaoController.apagarAvaliacao
+);
 
 
 // router.get('/manutencao', ManutencaoControllers.listarManutencao);
@@ -20,9 +31,24 @@ router.delete('/avaliacao/:id', AvaliacaoController.apagarAvaliacao);
 
 
 router.get('/horarios', HorariosControllers.listarHorarios);
-router.post('/horarios', HorariosControllers.cadastrarHorarios);
-router.patch('/horarios/:id', HorariosControllers.atualizarHorarios);
-router.delete('/horarios/:id', HorariosControllers.apagarHorarios);
+router.post(
+    '/horarios',
+    autenticar,
+    exigirAdmin,
+    HorariosControllers.cadastrarHorarios
+);
+router.patch(
+    '/horarios/:id',
+    autenticar,
+    exigirAdmin,
+    HorariosControllers.atualizarHorarios
+);
+router.delete(
+    '/horarios/:id',
+    autenticar,
+    exigirAdmin,
+    HorariosControllers.apagarHorarios
+);
 
 
 

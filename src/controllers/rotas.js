@@ -52,12 +52,23 @@ function normalizarTrajeto(trajeto) {
 
     if (
         !Array.isArray(coordenadas) ||
-        !coordenadas.every((ponto) =>
-            Array.isArray(ponto) &&
-            ponto.length === 2 &&
-            Number.isFinite(Number(ponto[0])) &&
-            Number.isFinite(Number(ponto[1]))
-        )
+        !coordenadas.every((ponto) => {
+            if (!Array.isArray(ponto) || ponto.length !== 2) {
+                return false;
+            }
+
+            const latitude = Number(ponto[0]);
+            const longitude = Number(ponto[1]);
+
+            return (
+                Number.isFinite(latitude) &&
+                Number.isFinite(longitude) &&
+                latitude >= -90 &&
+                latitude <= 90 &&
+                longitude >= -180 &&
+                longitude <= 180
+            );
+        })
     ) {
         throw new Error('Trajeto invalido');
     }
@@ -348,12 +359,20 @@ module.exports = {
 
     async cadastrarrotas (request, response) {
         try{
-            const { id_da_Linha, mapa = null } = request.body;
+            const { id_da_Linha, mapa = null, cor = '#6B7280' } = request.body;
 
             if (!id_da_Linha) {
                 return response.status(400).json({
                     sucesso: false,
                     mensagem: 'Informe a linha da rota',
+                    dados: null
+                });
+            }
+
+            if (!corValida(cor)) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Informe uma cor valida no formato hexadecimal',
                     dados: null
                 });
             }
@@ -367,18 +386,19 @@ module.exports = {
 
             const sql = `
                 INSERT INTO rotas 
-                    (id_rota, id_linha, mapa)
+                    (id_rota, id_linha, mapa, cor)
                 VALUES
-                    (?, ?, ?);
+                    (?, ?, ?, ?);
             `;
 
-            const values = [idRota, id_da_Linha, mapa];
+            const values = [idRota, id_da_Linha, mapa, cor.toUpperCase()];
 
             await db.query(sql, values);
 
             const dados = {
                 id: idRota,
-                id_da_Linha
+                id_da_Linha,
+                cor: cor.toUpperCase()
             };
 
             return response.status(200).json(
@@ -399,19 +419,67 @@ module.exports = {
         }
     },
     async editarrotas (request, response) {
-        try{
-            const { id_do_Ponto, id_da_Linha } = request.body;
-            
+        try {
+            const { id_do_Ponto, id_da_Linha, cor, trajeto } = request.body;
             const { id } = request.params;
+            const campos = [];
+            const values = [];
+
+            if (id_do_Ponto !== undefined) {
+                campos.push('id_ponto = ?');
+                values.push(id_do_Ponto || null);
+            }
+
+            if (id_da_Linha !== undefined) {
+                campos.push('id_linha = ?');
+                values.push(id_da_Linha);
+            }
+
+            if (cor !== undefined) {
+                if (!corValida(cor)) {
+                    return response.status(400).json({
+                        sucesso: false,
+                        mensagem: 'Informe uma cor valida no formato hexadecimal',
+                        dados: null
+                    });
+                }
+
+                campos.push('cor = ?');
+                values.push(String(cor).toUpperCase());
+            }
+
+            if (trajeto !== undefined) {
+                let trajetoNormalizado;
+
+                try {
+                    trajetoNormalizado = normalizarTrajeto(trajeto);
+                } catch {
+                    return response.status(400).json({
+                        sucesso: false,
+                        mensagem: 'O trajeto possui coordenadas invalidas',
+                        dados: null
+                    });
+                }
+
+                campos.push('trajeto = ?');
+                values.push(trajetoNormalizado);
+            }
+
+            if (campos.length === 0) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Informe os dados da rota que deseja atualizar',
+                    dados: null
+                });
+            }
             
             const sql = `
-                UPDATE rotas SET
-                    id_ponto = ?, id_linha = ?
-                WHERE
-                    id_rota = ?;
+                UPDATE rotas
+                SET ${campos.join(', ')}
+                WHERE id_rota = ?;
             `;
 
-            const values = [ id_do_Ponto, id_da_Linha, id];
+            values.push(id);
 
             const [result] = await db.query(sql, values);
 

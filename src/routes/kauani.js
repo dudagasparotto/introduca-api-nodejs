@@ -6,6 +6,7 @@ const router = express.Router();
 const motoristaController = require('../controllers/motorista');
 const usuariosController = require('../controllers/usuarios');
 const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
+const { autenticar, exigirAdmin } = require('../middlewares/autenticacao');
 
 const uploadMotorista = multer({
     storage: multer.diskStorage({
@@ -29,30 +30,73 @@ const uploadMotorista = multer({
 
 router.get('/motoristas/', motoristaController.listarMotorista);
 router.get('/motoristas/:id/rotas', motoristaController.listarRotasDoMotorista);
-router.put('/motoristas/:id/rotas', motoristaController.atualizarRotasDoMotorista);
+router.put(
+    '/motoristas/:id/rotas',
+    autenticar,
+    exigirAdmin,
+    motoristaController.atualizarRotasDoMotorista
+);
 router.get('/motoristas/:id', motoristaController.buscarMotorista);
 router.post(
     '/motoristas',
+    autenticar,
+    exigirAdmin,
     uploadMotorista.single('foto'),
     motoristaController.cadastrarMotorista
 );
 router.patch(
     '/motoristas/:id',
+    autenticar,
+    exigirAdmin,
     uploadMotorista.single('foto'),
     motoristaController.atualizarMotorista
 );
-router.delete('/motoristas/:id', motoristaController.apagarMotorista);
+router.delete(
+    '/motoristas/:id',
+    autenticar,
+    exigirAdmin,
+    motoristaController.apagarMotorista
+);
 
-router.get('/usuarios', usuariosController.listarUsuario);
-router.post('/usuarios', usuariosController.cadastrarUsuario);
-router.patch('/usuarios/:id', usuariosController.atualizarUsuario);
-router.delete('/usuarios/:id', usuariosController.apagarUsuario);
-router.get('/login', usuariosController.login);
+router.get('/usuarios', autenticar, exigirAdmin, usuariosController.listarUsuario);
+router.post('/usuarios', autenticar, exigirAdmin, usuariosController.cadastrarUsuario);
+router.patch(
+    '/usuarios/:id',
+    autenticar,
+    exigirAdmin,
+    usuariosController.atualizarUsuario
+);
+router.delete(
+    '/usuarios/:id',
+    autenticar,
+    exigirAdmin,
+    usuariosController.apagarUsuario
+);
 
-router.get('/tiposdeusuarios', tiposdeUsuariosController.listarTiposdeUsuario);
-router.post('/tiposdeusuarios', tiposdeUsuariosController.cadastrarTiposdeUsuario);
-router.patch('/tiposdeusuarios/:id', tiposdeUsuariosController.atualizarTiposdeUsuario);
-router.delete('/tiposdeusuarios/:id', tiposdeUsuariosController.apagarTiposdeUsuario);
+router.get(
+    '/tiposdeusuarios',
+    autenticar,
+    exigirAdmin,
+    tiposdeUsuariosController.listarTiposdeUsuario
+);
+router.post(
+    '/tiposdeusuarios',
+    autenticar,
+    exigirAdmin,
+    tiposdeUsuariosController.cadastrarTiposdeUsuario
+);
+router.patch(
+    '/tiposdeusuarios/:id',
+    autenticar,
+    exigirAdmin,
+    tiposdeUsuariosController.atualizarTiposdeUsuario
+);
+router.delete(
+    '/tiposdeusuarios/:id',
+    autenticar,
+    exigirAdmin,
+    tiposdeUsuariosController.apagarTiposdeUsuario
+);
 
 
 module.exports = router;
