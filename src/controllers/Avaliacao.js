@@ -112,7 +112,8 @@ module.exports = {
                     ROUND(
                         AVG(nota_avaliacao),
                         1
-                    ) AS media
+                    ) AS media,
+                    COUNT(*) AS quantidade
                 FROM avaliacao
                 WHERE id_motorista = ?;
             `;
@@ -127,7 +128,10 @@ module.exports = {
                 sucesso: true,
 
                 media:
-                    rows[0].media || 0
+                    rows[0].media || 0,
+
+                quantidade:
+                    rows[0].quantidade || 0
 
             });
 
