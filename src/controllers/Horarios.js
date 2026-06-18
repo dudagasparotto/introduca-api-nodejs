@@ -1,5 +1,9 @@
 const db = require('../dataBase/connection');
 
+function formatarHorario(horario) {
+    return horario ? String(horario).slice(0, 5) : '';
+}
+
 module.exports = {
 
     async listarHorarios(request, response) {
@@ -43,6 +47,48 @@ module.exports = {
             return response.status(500).json({
                 sucesso: false,
                 mensagem: `Erro ao listar horários: ${error.message}`,
+                dados: null
+            });
+
+        }
+
+    },
+
+    async listarHorariosDoPonto(request, response) {
+
+        try {
+
+            const { id } = request.params;
+
+            const sql = `
+                SELECT
+                    h.id_horario,
+                    h.id_ponto,
+                    h.passagem_horarios
+                FROM horarios h
+                WHERE h.id_ponto = ?
+                ORDER BY h.passagem_horarios ASC;
+            `;
+
+            const [rows] = await db.query(sql, [id]);
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Horarios do ponto carregados com sucesso',
+                itens: rows.length,
+                dados: rows.map((horario) => ({
+                    id_horario: horario.id_horario,
+                    id_ponto: horario.id_ponto,
+                    passagem_horarios: formatarHorario(horario.passagem_horarios),
+                    hora: formatarHorario(horario.passagem_horarios)
+                }))
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: `Erro ao listar horarios do ponto: ${error.message}`,
                 dados: null
             });
 

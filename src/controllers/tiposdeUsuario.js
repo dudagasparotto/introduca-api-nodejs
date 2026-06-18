@@ -1,4 +1,3 @@
-const e = require('cors');
 const db = require('../dataBase/connection');
 
 module.exports = {

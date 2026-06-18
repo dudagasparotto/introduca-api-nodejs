@@ -31,6 +31,7 @@ router.delete(
 
 
 router.get('/horarios', HorariosControllers.listarHorarios);
+router.get('/pontos/:id/horarios', HorariosControllers.listarHorariosDoPonto);
 router.post(
     '/horarios',
     autenticar,
@@ -38,6 +39,12 @@ router.post(
     HorariosControllers.cadastrarHorarios
 );
 router.patch(
+    '/horarios/:id',
+    autenticar,
+    exigirAdmin,
+    HorariosControllers.atualizarHorarios
+);
+router.put(
     '/horarios/:id',
     autenticar,
     exigirAdmin,

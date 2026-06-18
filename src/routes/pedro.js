@@ -8,6 +8,7 @@ const { autenticar, exigirAdmin } = require('../middlewares/autenticacao');
 router.get('/rotas', RotasController.listarrotas);
 router.get('/motoristas-rotas', RotasController.listarVinculosMotoristasRotas);
 router.get('/rotas-com-pontos', RotasController.listarRotasComPontos);
+router.get('/rotas/:id/pontos', RotasController.listarPontosDaRota);
 router.get('/rotas/:id/detalhes', RotasController.buscarDetalhesDaRota);
 router.get('/rotas/:id/motoristas', RotasController.listarMotoristasDaRota);
 router.post('/rotas', autenticar, exigirAdmin, RotasController.cadastrarrotas);

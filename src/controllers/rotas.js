@@ -37,6 +37,24 @@ function formatarHorario(horario) {
     return horario ? String(horario).slice(0, 5) : '';
 }
 
+function calcularProximaSaida(horarios) {
+    const horariosValidos = horarios
+        .map((horario) => formatarHorario(horario.passagem_horarios))
+        .filter(Boolean)
+        .sort();
+
+    if (horariosValidos.length === 0) {
+        return null;
+    }
+
+    const agora = new Date();
+    const horarioAtual = `${String(agora.getHours()).padStart(2, '0')}:${String(
+        agora.getMinutes()
+    ).padStart(2, '0')}`;
+
+    return horariosValidos.find((horario) => horario >= horarioAtual) || horariosValidos[0];
+}
+
 function corValida(cor) {
     return /^#[0-9A-F]{6}$/i.test(String(cor || ''));
 }
@@ -234,6 +252,53 @@ module.exports = {
 
     },
 
+    async listarPontosDaRota(request, response) {
+
+        try {
+
+            const { id } = request.params;
+
+            const sql = `
+                SELECT
+                    id_pontos,
+                    nome_pontos,
+                    latitude_pontos,
+                    longitude_pontos,
+                    id_rota
+                FROM pontos
+                WHERE id_rota = ?
+                ORDER BY id_pontos ASC;
+            `;
+
+            const [pontos] = await db.query(sql, [id]);
+
+            return response.status(200).json({
+                sucesso: true,
+                mensagem: 'Pontos da rota carregados com sucesso',
+                itens: pontos.length,
+                dados: pontos.map((ponto) => ({
+                    id_ponto: ponto.id_pontos,
+                    id_pontos: ponto.id_pontos,
+                    nome_ponto: ponto.nome_pontos,
+                    nome_pontos: ponto.nome_pontos,
+                    latitude: ponto.latitude_pontos,
+                    longitude: ponto.longitude_pontos,
+                    id_rota: ponto.id_rota
+                }))
+            });
+
+        } catch (error) {
+
+            return response.status(500).json({
+                sucesso: false,
+                mensagem: `Erro ao listar pontos da rota: ${error.message}`,
+                dados: []
+            });
+
+        }
+
+    },
+
     async listarMotoristasDaRota(request, response) {
 
         try {
@@ -329,6 +394,7 @@ module.exports = {
                     nome_rota: rota.nome_rota,
                     cor: rota.cor,
                     trajeto: rota.trajeto,
+                    proxima_saida: calcularProximaSaida(horarios),
                     pontos: pontos.map((ponto) => ({
                         id_ponto: ponto.id_pontos,
                         nome_ponto: ponto.nome_pontos,

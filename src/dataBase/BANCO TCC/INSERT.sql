@@ -8,7 +8,7 @@ INSERT INTO tipo_usuarios (id_tipo_usuario, nome_tipo_usuario) VALUES
 
 -- Usuário (ADM)
 INSERT INTO usuarios (id_tipo_usuario, nome_usuario, senha_usuario ) VALUES
-(2, 'Mariana Silva', 'senha_hash_1' ),
+(2, 'Mariana Silva', '123456' ),
 (2, 'Carlos Pereira', 'senha_hash_2'),
 (2, 'Visitante', 'senha_hash_6');
 
