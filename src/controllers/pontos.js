@@ -1,5 +1,50 @@
 const db = require('../dataBase/connection');
 
+function obterDadosPonto(body) {
+    const nome_pontos = body.nome_pontos ?? body.nome_dos_pontos;
+    const latitude_pontos = Number(
+        body.latitude_pontos ?? body.latitude_dos_pontos
+    );
+    const longitude_pontos = Number(
+        body.longitude_pontos ?? body.longitude_dos_pontos
+    );
+    const id_rota = Number(body.id_rota);
+
+    return {
+        nome_pontos: String(nome_pontos || '').trim(),
+        latitude_pontos,
+        longitude_pontos,
+        id_rota
+    };
+}
+
+function coordenadasInvalidas(latitude, longitude) {
+    return (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude) ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
+    );
+}
+
+function validarDadosPonto(dados) {
+    if (!dados.nome_pontos) {
+        return 'Informe o nome do ponto.';
+    }
+
+    if (coordenadasInvalidas(dados.latitude_pontos, dados.longitude_pontos)) {
+        return 'Marque um ponto valido no mapa para salvar latitude e longitude.';
+    }
+
+    if (!Number.isInteger(dados.id_rota) || dados.id_rota <= 0) {
+        return 'Selecione uma rota para salvar o ponto.';
+    }
+
+    return null;
+}
+
 module.exports = {
     async listarpontos(request, response) {
         try {
@@ -42,17 +87,13 @@ module.exports = {
 
     async cadastrarpontos(request, response) {
         try {
-            const {
-                nome_dos_pontos,
-                latitude_dos_pontos,
-                longitude_dos_pontos,
-                id_rota
-            } = request.body;
+            const dadosPonto = obterDadosPonto(request.body);
+            const mensagemErro = validarDadosPonto(dadosPonto);
 
-            if (!id_rota) {
+            if (mensagemErro) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'Selecione uma rota para cadastrar o ponto.',
+                    mensagem: mensagemErro,
                     dados: null
                 });
             }
@@ -65,10 +106,10 @@ module.exports = {
             `;
 
             const values = [
-                nome_dos_pontos,
-                latitude_dos_pontos,
-                longitude_dos_pontos,
-                id_rota
+                dadosPonto.nome_pontos,
+                dadosPonto.latitude_pontos,
+                dadosPonto.longitude_pontos,
+                dadosPonto.id_rota
             ];
 
             const [result] = await db.query(sql, values);
@@ -78,10 +119,11 @@ module.exports = {
                 mensagem: 'Cadastro de pontos realizado com sucesso',
                 dados: {
                     id: result.insertId,
-                    nome_dos_pontos,
-                    latitude_dos_pontos,
-                    longitude_dos_pontos,
-                    id_rota
+                    id_pontos: result.insertId,
+                    nome_pontos: dadosPonto.nome_pontos,
+                    latitude_pontos: dadosPonto.latitude_pontos,
+                    longitude_pontos: dadosPonto.longitude_pontos,
+                    id_rota: dadosPonto.id_rota
                 }
             });
         } catch (error) {
@@ -95,17 +137,13 @@ module.exports = {
 
     async editarpontos(request, response) {
         try {
-            const {
-                nome_dos_pontos,
-                latitude_dos_pontos,
-                longitude_dos_pontos,
-                id_rota
-            } = request.body;
+            const dadosPonto = obterDadosPonto(request.body);
+            const mensagemErro = validarDadosPonto(dadosPonto);
 
-            if (!id_rota) {
+            if (mensagemErro) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'Selecione uma rota para atualizar o ponto.',
+                    mensagem: mensagemErro,
                     dados: null
                 });
             }
@@ -123,10 +161,10 @@ module.exports = {
             `;
 
             const values = [
-                nome_dos_pontos,
-                latitude_dos_pontos,
-                longitude_dos_pontos,
-                id_rota,
+                dadosPonto.nome_pontos,
+                dadosPonto.latitude_pontos,
+                dadosPonto.longitude_pontos,
+                dadosPonto.id_rota,
                 id
             ];
 
@@ -145,10 +183,10 @@ module.exports = {
                 mensagem: `Ponto ${id} atualizado com sucesso!`,
                 dados: {
                     id_pontos: Number(id),
-                    nome_dos_pontos,
-                    latitude_dos_pontos,
-                    longitude_dos_pontos,
-                    id_rota
+                    nome_pontos: dadosPonto.nome_pontos,
+                    latitude_pontos: dadosPonto.latitude_pontos,
+                    longitude_pontos: dadosPonto.longitude_pontos,
+                    id_rota: dadosPonto.id_rota
                 }
             });
 
