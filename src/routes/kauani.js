@@ -5,12 +5,16 @@ const motoristaController = require('../controllers/motorista');
 const usuariosController = require('../controllers/usuarios');
 const tiposdeUsuariosController = require('../controllers/tiposdeUsuario');
 const upload = require('../middlewares/upload');
+const motoristasRotasController = require('../controllers/motoristasRotas');
 
 router.get('/motoristas', motoristaController.listarMotorista);
 router.post('/motoristas', upload.single('foto'), motoristaController.cadastrarMotorista);
-router.patch('/motoristas/:id', motoristaController.atualizarMotorista);
+router.patch('/motoristas/:id', upload.single('foto'), motoristaController.atualizarMotorista);
 router.delete('/motoristas/:id', motoristaController.apagarMotorista);
 router.get('/motoristas/:id', motoristaController.buscarMotorista);
+router.get('/motoristas-rotas', motoristasRotasController.listar);
+router.get('/motoristas/:id/rotas', motoristasRotasController.listarPorMotorista);
+router.put('/motoristas/:id/rotas', motoristasRotasController.substituir);
 
 router.get('/usuarios', usuariosController.listarUsuario);
 router.post('/usuarios', usuariosController.cadastrarUsuario);

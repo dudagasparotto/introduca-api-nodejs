@@ -68,7 +68,7 @@ module.exports = {
         }
 
         const foto_motorista =
-            request.file?.filename || null;
+            request.file ? `uploads/${request.file.filename}` : null;
 
         const sql = `
             INSERT INTO motorista
@@ -130,7 +130,24 @@ module.exports = {
     async atualizarMotorista(request, response) {
         try {
             // Parametros recebidos pelo corpo da requisição 
-            const { nome_motorista, cpf_motorista, cnh_motorista, foto_motorista } = request.body;
+            const {
+                nome_motorista,
+                cpf_motorista,
+                cnh_motorista,
+                foto_motorista: fotoAtual
+            } = request.body || {};
+
+            if (!nome_motorista || !cpf_motorista || !cnh_motorista) {
+                return response.status(400).json({
+                    sucesso: false,
+                    mensagem: 'Informe nome, CPF e CNH do motorista.',
+                    dados: null
+                });
+            }
+
+            const foto_motorista = request.file
+                ? `uploads/${request.file.filename}`
+                : fotoAtual || null;
 
             //parametro recebido pela URL da requisição
             const {id} = request.params;
@@ -169,7 +186,7 @@ module.exports = {
 
         return response.status(200).json({
             sucesso: true, 
-            mensagem: 'usuario ${id} atualizado com sucesso',
+            mensagem: `Motorista ${id} atualizado com sucesso`,
             dados
         }); 
 
