@@ -142,7 +142,6 @@ module.exports = {
                     r.id_rota,
                     NULL AS id_ponto,
                     r.id_linha,
-                    r.mapa,
                     r.cor,
                     r.trajeto,
                     l.nome_linhas
@@ -181,7 +180,6 @@ module.exports = {
                     r.id_rota,
                     l.id_linha,
                     l.nome_linhas,
-                    r.mapa,
                     r.cor,
                     r.trajeto,
                     p.id_pontos,
@@ -214,7 +212,6 @@ module.exports = {
                         id_linha: item.id_linha,
                         nome_linha: item.nome_linhas,
                         nome_linhas: item.nome_linhas,
-                        mapa: item.mapa,
                         cor: item.cor,
                         trajeto: item.trajeto,
                         pontos: []
@@ -425,7 +422,7 @@ module.exports = {
 
     async cadastrarrotas (request, response) {
         try{
-            const { id_da_Linha, mapa = null, cor = '#6B7280' } = request.body;
+            const { id_da_Linha, cor = '#6B7280' } = request.body;
 
             if (!id_da_Linha) {
                 return response.status(400).json({
@@ -452,12 +449,12 @@ module.exports = {
 
             const sql = `
                 INSERT INTO rotas 
-                    (id_rota, id_linha, mapa, cor)
+                    (id_rota, id_linha, cor)
                 VALUES
-                    (?, ?, ?, ?);
+                    (?, ?, ?);
             `;
 
-            const values = [idRota, id_da_Linha, mapa, cor.toUpperCase()];
+            const values = [idRota, id_da_Linha, cor.toUpperCase()];
 
             await db.query(sql, values);
 
